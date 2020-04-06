@@ -3,7 +3,6 @@
 
 from flask import Flask
 from flask import request
-import pirate_scrabble as ps
 from pirate_scrabble import pooltoletters, letterstopool, pickletter, recursive
 import string
 
@@ -28,40 +27,37 @@ def hello_world():
 
     if request.method == 'POST':
         word = request.form['word'].upper()
-    else:
-        poolletters = pooltoletters(pool_flipped)
-        playedwordsstring = '  '.join(played_words)
-        page = page + f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}<br/>'
-        return page
 
-    result = False
+        result = False
 
-    # is it a valid word?
-    if len(word) == 0:
-        pass
-    elif len(word) < min_word_length:
-        print('That word is too short. Minimum length is', min_word_length)
-        page = page + f'That word is too short. Minimum length is {min_word_length}<br/>'
-    elif word not in dictionary:
-        print(word, 'is not even a word ⚆_⚆')
-        page = page + f'{word} is not even a word ⚆_⚆<br/>'
-    else:
-        result, pool_flipped, played_words = recursive(word, played_words, pool_flipped)
+        # is it a valid word?
+        if len(word) == 0:
+            pass
+        elif len(word) < min_word_length:
+            print('That word is too short. Minimum length is', min_word_length)
+            page = page + f'That word is too short. Minimum length is {min_word_length}<br/>'
+        elif word not in dictionary:
+            print(word, 'is not even a word ⚆_⚆')
+            page = page + f'{word} is not even a word ⚆_⚆<br/>'
+        else:
+            result, pool_flipped, played_words = recursive(word, played_words, pool_flipped)
+            if result == False:
+                page = page + f'You can\'t make {word} out of the available letters<br/>'
 
-    if result:
-        print('You claimed ' + word)
-        page = page + f'You claimed {word}<br/>'
-        played_words.append(word)
-    else:
-        letter = pickletter(pool)
-        print('flipped over', letter)
-        page = page + f'flipped over {letter}<br/>'
-        letterindex = alphabet.find(letter)
-        pool[letterindex] -= 1
-        pool_flipped[letterindex] += 1
+        if result:
+            print('You claimed ' + word)
+            page = page + f'You claimed {word}<br/>'
+            played_words.append(word)
+        else:
+            letter = pickletter(pool)
+            print('flipped over', letter)
+            page = page + f'flipped over {letter}<br/>'
+            letterindex = alphabet.find(letter)
+            pool[letterindex] -= 1
+            pool_flipped[letterindex] += 1
 
     poolletters = pooltoletters(pool_flipped)
-    playedwordsstring = '  '.join(played_words)
+    playedwordsstring = '&ensp;'.join(played_words)
     page = page + f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}<br/>'
-    page = page + '<form action="/" method="post"><input type="text" name="word" autofocus></form>'
+    page = page + '<br/><form action="/" method="post"><input type="text" name="word" placeholder="type a word to claim it" autofocus></form>'
     return page
