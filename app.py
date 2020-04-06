@@ -2,7 +2,7 @@
 # A very simple Flask Hello World app for you to get started with...
 
 from flask import Flask
-from flask import request
+from flask import request, render_template
 from pirate_scrabble import pooltoletters, letterstopool, pickletter, recursive
 import string
 
@@ -23,7 +23,8 @@ def hello_world():
     global pool
     global pool_flipped
     global played_words
-    page = ''
+    messages = []
+    tilestatus = ''
 
     if request.method == 'POST':
         word = request.form['word'].upper()
@@ -34,30 +35,24 @@ def hello_world():
         if len(word) == 0:
             pass
         elif len(word) < min_word_length:
-            print('That word is too short. Minimum length is', min_word_length)
-            page = page + f'That word is too short. Minimum length is {min_word_length}<br/>'
+            messages.append(f'That word is too short. Minimum length is {min_word_length}')
         elif word not in dictionary:
-            print(word, 'is not even a word ⚆_⚆')
-            page = page + f'{word} is not even a word ⚆_⚆<br/>'
+            messages.append(f'{word} is not even a word ⚆_⚆')
         else:
             result, pool_flipped, played_words = recursive(word, played_words, pool_flipped)
             if result == False:
-                page = page + f'You can\'t make {word} out of the available letters<br/>'
+                messages.append(f'You can\'t make {word} out of the available letters')
 
         if result:
-            print('You claimed ' + word)
-            page = page + f'You claimed {word}<br/>'
+            messages.append(f'You claimed {word}')
             played_words.append(word)
         else:
             letter = pickletter(pool)
-            print('flipped over', letter)
-            page = page + f'flipped over {letter}<br/>'
+            messages.append(f'flipped over {letter}')
             letterindex = alphabet.find(letter)
             pool[letterindex] -= 1
             pool_flipped[letterindex] += 1
 
     poolletters = pooltoletters(pool_flipped)
-    playedwordsstring = '&ensp;'.join(played_words)
-    page = page + f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}<br/>'
-    page = page + '<br/><form action="/" method="post"><input type="text" name="word" placeholder="type a word to claim it" autofocus></form>'
-    return page
+    print(messages)
+    return render_template('index.html', messages=messages, poolletters=poolletters, words=played_words)
