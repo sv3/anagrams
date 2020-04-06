@@ -2,6 +2,7 @@
 # A very simple Flask Hello World app for you to get started with...
 
 from flask import Flask
+from flask import request
 import pirate_scrabble as ps
 from pirate_scrabble import pooltoletters, letterstopool, pickletter, recursive
 import string
@@ -18,24 +19,20 @@ played_words = []
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def hello_world():
-    poolletters = pooltoletters(pool_flipped)
-    playedwordsstring = '  '.join(played_words)
-    return f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}'
-
-
-@app.route('/word/<string:target>')
-def enter_word(target):
     global pool
     global pool_flipped
     global played_words
-
-    word = target.upper()
     page = ''
 
-    poolletters = pooltoletters(pool_flipped)
-    playedwordsstring = '  '.join(played_words)
+    if request.method == 'POST':
+        word = request.form['word'].upper()
+    else:
+        poolletters = pooltoletters(pool_flipped)
+        playedwordsstring = '  '.join(played_words)
+        page = page + f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}<br/>'
+        return page
 
     result = False
 
@@ -63,5 +60,8 @@ def enter_word(target):
         pool[letterindex] -= 1
         pool_flipped[letterindex] += 1
 
-    page = page + f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}<br/>' 
+    poolletters = pooltoletters(pool_flipped)
+    playedwordsstring = '  '.join(played_words)
+    page = page + f'tiles in pool: {poolletters}<br/>words played: {playedwordsstring}<br/>'
+    page = page + '<form action="/" method="post"><input type="text" name="word" autofocus></form>'
     return page
