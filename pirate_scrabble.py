@@ -27,7 +27,6 @@ def stringtocounts(letters):
     letterpool = [0 for i in range(26)]
     for l in letters.upper():
         letterindex = alphabet.find(l)
-        print(letterindex)
         letterpool[letterindex] += 1
     return letterpool
 
@@ -54,8 +53,10 @@ def check_fully_contained(donor, target):
     return target
 
 
-def recursive(target, letterpool, played_words):
+def recursive(target, letterpool, played_words, depth):
     target = target.upper()
+    indent = depth*2
+    print(' '*indent + 'target',target,'  letterpool',letterpool,'  played_words',played_words)
 
     if played_words != []:
         for donor in played_words:
@@ -65,19 +66,23 @@ def recursive(target, letterpool, played_words):
                 # try the next word in played_words
                 continue
             elif remaining == '':
-                # found a word to steal - done
-                played_words.remove(donor)
-                print('stealing ' + donor + ' to make ' + target)
-                return True, letterpool, played_words
+                # found a word to steal
+                if depth == 0:
+                    continue
+                played_words_new.remove(donor)
+                print(' '*indent + 'stealing ' + donor + ' to make ' + target)
+                return True, letterpool, played_words_new
             else:
                 # found a word to steal for some of the letters needed - we need to go deeper
-                played_words.remove(donor)
-                result, newpool, new_played_words = recursive(remaining, letterpool, played_words)
-                print('stealing ' + donor + ' to make ' + target)
+                played_words_new = played_words.copy()
+                played_words_new.remove(donor)
+                print(' '*indent + 'trying to steal', donor, 'to make', target, '.  remaining:', remaining)
+                result, newpool, played_words_new = recursive(remaining, letterpool, played_words_new, depth+1)
                 if result == True:
-                    return True, newpool, new_played_words
+                    return True, newpool, played_words_new
                 else:
-                    return False, letterpool, played_words
+                    played_word_new = played_words.copy()
+        print(' '* indent + 'failed to find a word to steal for the letters:', target)
 
     # take a tile from the pool for each letter in the word
     poolcounts = stringtocounts(letterpool)
@@ -89,16 +94,15 @@ def recursive(target, letterpool, played_words):
         # did we run out of this letter? add it to the remaining (leftover) letters
         if poolcounts[letterindex] < 0:
             target_remaining = target_remaining + letter
-    print('letters remaining in pool after making', target , ':', countstostring(poolcounts))
 
     if all(map(lambda x: x>=0, poolcounts)):
+        print(' '*indent + 'taking these letters from the pool:', target)
         newpoolsorted = countstostring(poolcounts)
         newpool = ''.join([ letter for letter in letterpool if letter in newpoolsorted ])
-        print('newpool', newpool)
         return True, newpool, played_words
     else:
+        print(' '*indent + 'failed to find these letters from', target, 'in the pool:', target_remaining, '- backtracking')
         return False, letterpool, played_words
-    return False, letterpool, played_words
 
 def infinite():
     while True:
@@ -119,7 +123,7 @@ def infinite():
         elif word not in dictionary:
             print(word, 'is not even a word ⚆_⚆')
         else:
-            result, pool_flipped, played_words = recursive(word, pool_flipped, played_words)
+            result, pool_flipped, played_words = recursive(word, pool_flipped, played_words, 0)
 
         if result:
             print('You claimed ' + word)
