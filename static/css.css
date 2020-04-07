@@ -16,9 +16,10 @@ label {
 #poolletters, #wordblocks{
     background-color: #fcfae5;
     font-size: 1.8em;
-    padding: 0.2em;
+    padding: 0.2em 0.3em;
     display: block;
     min-width: 5em;
+    min-height: 1em;
     margin-top: 0.2em;
     margin-bottom: 0.2em;
     line-height: 110%;
