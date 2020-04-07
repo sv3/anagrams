@@ -8,17 +8,13 @@ min_word_length = 3
 alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
-pool_flipped = [0 for i in range(26)]
+# pool_flipped = [0 for i in range(26)]
+pool_flipped = ''
 played_words = []
 
 
-def pooltoletters(letterpool):
+def countstostring(letterpool):
     letterlist = [ alphabet[i]*num for i, num in enumerate(letterpool) ]
-    return ''.join(letterlist)
-
-
-def pooltoblocks(letterpool):
-    letterlist = [ block_alphabet[i]*num for i, num in enumerate(letterpool) ]
     return ''.join(letterlist)
 
 
@@ -27,7 +23,7 @@ def stringtoblocks(string):
     return ''.join(letterlist)
 
 
-def letterstopool(letters):
+def stringtocounts(letters):
     letterpool = [0 for i in range(26)]
     for l in letters.upper():
         letterindex = alphabet.find(l)
@@ -58,12 +54,12 @@ def check_fully_contained(donor, target):
     return target
 
 
-def recursive(target, played_words, letterpool):
+def recursive(target, letterpool, played_words):
     target = target.upper()
 
     if played_words != []:
         for donor in played_words:
-             # Check if any of the played words are fully contained in the target word
+            # Check if any of the played words are fully contained in the target word
             remaining = check_fully_contained(donor, target)
             if remaining == False:
                 # try the next word in played_words
@@ -76,7 +72,7 @@ def recursive(target, played_words, letterpool):
             else:
                 # found a word to steal for some of the letters needed - we need to go deeper
                 played_words.remove(donor)
-                result, newpool, new_played_words = recursive(remaining, played_words, letterpool)
+                result, newpool, new_played_words = recursive(remaining, letterpool, played_words)
                 print('stealing ' + donor + ' to make ' + target)
                 if result == True:
                     return True, newpool, new_played_words
@@ -84,19 +80,21 @@ def recursive(target, played_words, letterpool):
                     return False, letterpool, played_words
 
     # take a tile from the pool for each letter in the word
-    newpool = letterpool.copy()
+    poolcounts = stringtocounts(letterpool)
     target_remaining = ''
     for letter in target:
         letterindex = alphabet.find(letter)
-        newpool[letterindex] -= 1
+        poolcounts[letterindex] -= 1
 
         # did we run out of this letter? add it to the remaining (leftover) letters
-        if newpool[letterindex] < 0:
+        if poolcounts[letterindex] < 0:
             target_remaining = target_remaining + letter
-    print('letters remaining in pool after making', target , ':', pooltoletters(newpool))
+    print('letters remaining in pool after making', target , ':', countstostring(poolcounts))
 
-
-    if all(map(lambda x: x>=0, newpool)):
+    if all(map(lambda x: x>=0, poolcounts)):
+        newpoolsorted = countstostring(poolcounts)
+        newpool = ''.join([ letter for letter in letterpool if letter in newpoolsorted ])
+        print('newpool', newpool)
         return True, newpool, played_words
     else:
         return False, letterpool, played_words
@@ -105,11 +103,11 @@ def recursive(target, played_words, letterpool):
 def infinite():
     while True:
         print('tiles in pool: ', end='')
-        print(pooltoletters(pool_flipped))
+        print(pool_flipped)
         print('words played: ' + '  '.join(played_words) )
 
         word = input('enter word: ').upper()
-        clear_output()
+        # clear_output()
 
         result = False
 
@@ -121,7 +119,7 @@ def infinite():
         elif word not in dictionary:
             print(word, 'is not even a word ⚆_⚆')
         else:
-            result, pool_flipped, played_words = recursive(word, played_words, pool_flipped)
+            result, pool_flipped, played_words = recursive(word, pool_flipped, played_words)
 
         if result:
             print('You claimed ' + word)
@@ -131,5 +129,4 @@ def infinite():
             print('flipped over', letter)
             letterindex = alphabet.find(letter)
             pool[letterindex] -= 1
-            pool_flipped[letterindex] += 1
-
+            pool_flipped = pool_flipped + letter
