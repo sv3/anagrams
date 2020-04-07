@@ -7,6 +7,7 @@
   <link rel="stylesheet" type="text/css" href="static/css.css" />
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
   <script type="text/javascript" src="static/js.js"></script>
+ </script>
 </head>
 
 <body>
@@ -16,13 +17,9 @@
       <div id="message">{{ message }}</div>
     {% endfor %}
     <div id="pool">Tiles in pool:&ensp;</div>
-    <div id="poolletters">{{ poolletters|join(' ') }}</div>
+    <div id="poolletters">{{ poolletters }}</div>
     <div id="words">Words played:</div>
-    <div id="wordblocks">
-    {% for word in words %}
-      {{ word|join(' ') }}&ensp;
-    {% endfor %}
-    </div>
+    <div id="wordblocks">{{ words|join(' ') }}</div>
     <div id="newwordmessage">{{ newwordmessage }}</div>
     <br/>
     <form action="/" method="post">
