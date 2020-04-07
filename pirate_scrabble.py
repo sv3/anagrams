@@ -7,12 +7,23 @@ with open('twl06.txt') as twl06:
 min_word_length = 3
 alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
+block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
 pool_flipped = [0 for i in range(26)]
 played_words = []
 
 
 def pooltoletters(letterpool):
     letterlist = [ alphabet[i]*num for i, num in enumerate(letterpool) ]
+    return ''.join(letterlist)
+
+
+def pooltoblocks(letterpool):
+    letterlist = [ block_alphabet[i]*num for i, num in enumerate(letterpool) ]
+    return ''.join(letterlist)
+
+
+def stringtoblocks(string):
+    letterlist = [ block_alphabet[alphabet.find(l)] for l in string ]
     return ''.join(letterlist)
 
 

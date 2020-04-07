@@ -1,12 +1,29 @@
 body {
     font-family:'Droid Sans', sans-serif;
     background-color:rgb(255, 222, 52);
-    margin: 1.5em;
-    /* height: 100vh; */
+    margin: 3em;
+    font-size: large;
+    /* display: flex; */
 }
 
 label {
     font-weight: bold;
+}
+
+#word {
+    font-size: 1.2em;:
+}
+
+#poolletters, #wordblocks{
+    background-color: #fcfae5;
+    font-size: 2em;
+    padding: 0.2em;
+    display: inline-block;
+    min-height: 1em;
+    min-width: 5em;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+    line-height: 0.9em
 }
 
 #log {

@@ -3,7 +3,7 @@
 
 from flask import Flask
 from flask import request, render_template
-from pirate_scrabble import pooltoletters, letterstopool, pickletter, recursive
+from pirate_scrabble import pooltoblocks, stringtoblocks, pickletter, recursive
 import string
 
 
@@ -48,11 +48,12 @@ def hello_world():
             played_words.append(word)
         else:
             letter = pickletter(pool)
-            messages.append(f'flipped over {letter}')
+            messages.append(f'flipped over {stringtoblocks(letter)}')
             letterindex = alphabet.find(letter)
             pool[letterindex] -= 1
             pool_flipped[letterindex] += 1
 
-    poolletters = pooltoletters(pool_flipped)
+    poolletters = pooltoblocks(pool_flipped)
     print(messages)
-    return render_template('index.html', messages=messages, poolletters=poolletters, words=played_words)
+    blockwords = [ stringtoblocks(word) for word in played_words ]
+    return render_template('index.html', messages=messages, poolletters=poolletters, words=blockwords)

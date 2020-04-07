@@ -13,12 +13,18 @@
   <h1>ANAGRAMS</h1>
   <div>
     {% for message in messages %}
-    <div id="message">{{ message }}</div>
+      <div id="message">{{ message }}</div>
     {% endfor %}
+    <div id="pool">Tiles in pool:&ensp;</div>
+    <div id="poolletters">{{ poolletters|join(' ') }}</div>
+    <div id="words">Words played:</div>
+    <div id="wordblocks">
+    {% for word in words %}
+      {{ word|join(' ') }}&ensp;
+    {% endfor %}
+    </div>
     <div id="newwordmessage">{{ newwordmessage }}</div>
-    <div id="pool">🄰tiles in pool:&ensp;{{poolletters}}</div>
-    <div id="words">words played:&ensp;{{ words|join('&ensp') }}</div>
-
+    <br/>
     <form action="/" method="post">
         <input type="text" name="word" id="word" placeholder="type a word to claim it" autofocus autocapitalize=off>
     </form>
