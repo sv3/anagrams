@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import request, render_template
+from flask import request, render_template, redirect, url_for
 from pirate_scrabble import stringtoblocks, pickletter, recursive
 import string
 
@@ -49,6 +49,8 @@ def anagrams():
             letterindex = alphabet.find(letter)
             pool[letterindex] -= 1
             pool_flipped = pool_flipped + letter
+
+        return redirect(url_for('anagrams'))
 
     poolletters = stringtoblocks(pool_flipped)
     print(messages)
