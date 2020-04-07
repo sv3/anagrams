@@ -1,9 +1,8 @@
 body {
     font-family:'Droid Sans', sans-serif;
     background-color:rgb(255, 222, 52);
-    margin: 3em;
-    font-size: large;
-    /* display: flex; */
+    margin: 10%;
+    font-size: 110%;
 }
 
 label {
@@ -11,57 +10,20 @@ label {
 }
 
 #word {
-    font-size: 1.2em;:
+    font-size: 1.2em;
 }
 
 #poolletters, #wordblocks{
     background-color: #fcfae5;
-    font-size: 2em;
+    font-size: 1.8em;
     padding: 0.2em;
-    display: inline-block;
-    min-height: 1em;
+    display: block;
     min-width: 5em;
     margin-top: 0.2em;
     margin-bottom: 0.2em;
-    line-height: 0.9em;
-    letter-spacing: 0.05em;
+    line-height: 110%;
+    letter-spacing: 0.1em;
 }
 
-#log {
-    list-style-type: none;
-    background-color: white;
-    padding: 1em;
-    list-style-type: none;
-    height: 65vh;
-    overflow-y: scroll;
-}
-
-#broadcast {
-    display: block;
-    width: 100%;
-    float: left;
-    margin-bottom: 1em;
-}
-
-#broadcast input {
-    font-size: 100%;
-    font-family: inherit;
-}
-
-#name {
-    width: 5em;
-    float:left;
-}
-
-#message {
-    width: 100%;
-    }
-
-#submit {
-    float: right;
-}
-
-#formspan {
-    display:block;
-    overflow: hidden;
+#poolletters{
 }

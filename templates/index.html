@@ -7,7 +7,6 @@
   <link rel="stylesheet" type="text/css" href="static/css.css" />
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
   <script type="text/javascript" src="static/js.js"></script>
- </script>
 </head>
 
 <body>
@@ -17,13 +16,13 @@
       <div id="message">{{ message }}</div>
     {% endfor %}
     <div id="pool">Tiles in pool:&ensp;</div>
-    <div id="poolletters">{{ poolletters }}</div>
+    <div id="poolletters">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>
     <div id="words">Words played:</div>
-    <div id="wordblocks">{{ words|join(' ') }}</div>
+    <div id="wordblocks">{{ words|join(' ') }}</div>
     <div id="newwordmessage">{{ newwordmessage }}</div>
     <br/>
     <form action="/" method="post">
-        <input type="text" name="word" id="word" placeholder="type a word to claim it" autofocus autocapitalize=off>
+        <input type="text" name="word" id="word" placeholder="type a word to claim it" autofocus autocapitalize=off autocomplete=off>
     </form>
   </div>
 </body>
