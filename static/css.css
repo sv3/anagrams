@@ -26,5 +26,10 @@ label {
     letter-spacing: 0.1em;
 }
 
-#poolletters{
+#info {
+    max-width: 50em;
+}
+
+#startbutton {
+    font-size: 8em;
 }

@@ -62,3 +62,8 @@ def anagrams():
         return render_template('index.html', messages=messages, poolletters=poolletters, words=blockwords)
     else:
         return 'what the heck'
+
+
+@app.route('/info')
+def info():
+    return app.send_static_file('info.html')
