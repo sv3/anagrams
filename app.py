@@ -28,9 +28,7 @@ def anagrams():
     if request.method == 'POST':
         messages = []
         word = request.form['word'].upper()
-
         result = False
-
         
         # is it a valid word?
         if len(word) == 0:

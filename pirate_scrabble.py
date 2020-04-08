@@ -8,7 +8,6 @@ min_word_length = 3
 alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
-# pool_flipped = [0 for i in range(26)]
 pool_flipped = ''
 played_words = []
 
@@ -84,22 +83,18 @@ def recursive(target, letterpool, played_words, depth):
                     played_word_new = played_words.copy()
         print(' '* indent + 'failed to find a word to steal for the letters:', target)
 
-    # take a tile from the pool for each letter in the word
-    poolcounts = stringtocounts(letterpool)
+    poollist = [ l for l in reversed(letterpool) ]
     target_remaining = ''
-    for letter in target:
-        letterindex = alphabet.find(letter)
-        poolcounts[letterindex] -= 1
 
-        # did we run out of this letter? add it to the remaining (leftover) letters
-        if poolcounts[letterindex] < 0:
+    for letter in target:
+        if letter in poollist:
+            poollist.remove(letter)
+        else:
             target_remaining = target_remaining + letter
 
-    if all(map(lambda x: x>=0, poolcounts)):
+    if target_remaining == '':
         print(' '*indent + 'taking these letters from the pool:', target)
-        newpoolsorted = countstostring(poolcounts)
-        newpool = ''.join([ letter for letter in letterpool if letter in newpoolsorted ])
-        return True, newpool, played_words
+        return True, ''.join(poollist), played_words
     else:
         print(' '*indent + 'failed to find these letters from', target, 'in the pool:', target_remaining, '- backtracking')
         return False, letterpool, played_words
