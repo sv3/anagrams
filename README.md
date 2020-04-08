@@ -1,4 +1,5 @@
-# pirate-scrabble
+# Anagrams
 
-try it here:
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sv3/pirate-scrabble/master?urlpath=apps%2Fpirate-scrabble.ipynb)
+A multiplayer word game where you can steal words from your opponents by making them into new words.
+
+[try it here](sv3.pythonanywere.com/info)
