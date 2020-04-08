@@ -10,7 +10,10 @@ label {
 }
 
 #word {
-    font-size: 1.2em;
+    font-size: 1.1em;
+    text-transform: uppercase;
+    width: 100%
+    
 }
 
 #poolletters, #wordblocks{
