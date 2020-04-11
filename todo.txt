@@ -1,0 +1,12 @@
+make rulesets:
+
+- letters must be rearranged
+
+
+implement scoring: (letters in word - n)
+
+implement websockets
+
+implement users with separate word pools
+
+implement turns

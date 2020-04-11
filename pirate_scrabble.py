@@ -83,7 +83,7 @@ def recursive(target, letterpool, played_words, depth):
                     played_word_new = played_words.copy()
         print(' '* indent + 'failed to find a word to steal for the letters:', target)
 
-    poollist = [ l for l in reversed(letterpool) ]
+    poollist = list(letterpool)
     target_remaining = ''
 
     for letter in target:
@@ -99,7 +99,9 @@ def recursive(target, letterpool, played_words, depth):
         print(' '*indent + 'failed to find these letters from', target, 'in the pool:', target_remaining, '- backtracking')
         return False, letterpool, played_words
 
-def infinite():
+
+
+if __name__ == '__main__':
     while True:
         print('tiles in pool: ', end='')
         print(pool_flipped)
