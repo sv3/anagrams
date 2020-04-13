@@ -17,7 +17,7 @@ def countstostring(letterpool):
     return ''.join(letterlist)
 
 
-def stringtoblocks(string):
+def toblocks(string):
     letterlist = [ block_alphabet[alphabet.find(l)] for l in string ]
     return ''.join(letterlist)
 

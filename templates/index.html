@@ -6,13 +6,6 @@
   <meta name=viewport content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="static/css.css" />
   <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
-  <script type="text/javascript" charset="utf-8">
-    var socket = io();
-    socket.on('connect', function() {
-        console.log('connectedsocket');
-        socket.emit('my event', {data: 'I\'m connected!'});
-    });
-  </script>
   <script type="text/javascript" src="static/js.js"></script>
 </head>
 
@@ -22,13 +15,13 @@
     {% for message in messages %}
       <div id="message">{{ message }}</div>
     {% endfor %}
-    <div id="pool">Available Tiles:&ensp;</div>
-    <div id="poolletters">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>
-    <div id="words">Words:</div>
-    <div id="wordblocks">{{ words|join(' ') }}</div>
+    <div id="poollabel">Available Tiles:&ensp;</div>
+    <div id="pool">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>
+    <div id="wordslabel">Words:</div>
+    <div id="words">{{ words|join(' ') }}</div>
     <div id="newwordmessage">{{ newwordmessage }}</div>
     <br/>
-    <form action="/" method="post">
+    <form id="wordform" method="post">
         <input type="text" name="word" id="word" placeholder="type a word or press enter" autofocus autocapitalize=off autocomplete=off>
     </form>
   </div>

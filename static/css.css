@@ -16,7 +16,7 @@ label {
     
 }
 
-#poolletters, #wordblocks{
+#pool, #words{
     background-color: #fcfae5;
     font-size: 1.8em;
     padding: 0.2em 0.3em;
