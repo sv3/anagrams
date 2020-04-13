@@ -1,7 +1,12 @@
-from flask import Flask
-from flask import request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for
+from flask_socketio import SocketIO
 from pirate_scrabble import stringtoblocks, pickletter, recursive
 import string
+
+
+app = Flask(__name__)
+app.config['SECRET KEY'] = 'secret!'
+socketio = SocketIO(app)
 
 
 with open('twl06.txt') as twl06:
@@ -15,7 +20,6 @@ pool_flipped = ''
 played_words = []
 messages = []
 
-app = Flask(__name__)
 
 @app.route('/', methods=['POST', 'GET'])
 def anagrams():
@@ -65,3 +69,13 @@ def anagrams():
 @app.route('/info')
 def info():
     return app.send_static_file('info.html')
+
+
+
+@socketio.on('my event')
+def handle_message(message):
+    print('received message: ' + str(message))
+
+
+if __name__ == '__main__':
+    socketio.run(app, use_reloader=True, debug=True, host='0.0.0.0')
