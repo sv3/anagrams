@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, redirect, url_for
 from flask_socketio import SocketIO
+import git
 from pirate_scrabble import toblocks, pickletter, recursive
 import string
 
@@ -35,6 +36,15 @@ def anagrams():
 @app.route('/info')
 def info():
     return app.send_static_file('info.html')
+
+
+@app.route('/update_server', methods=['POST'])
+def update():
+    repo = git.Repo('.')
+    print(repo)
+    origin = repo.remotes.origin
+    origin.pull()
+    return 'updated server succesfully', 200
 
 
 @socketio.on('submit')
