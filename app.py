@@ -1,6 +1,7 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, abort
 from flask_socketio import SocketIO
 import git
+from check_signature import is_valid_signature
 from pirate_scrabble import toblocks, pickletter, recursive
 import string
 
@@ -40,11 +41,51 @@ def info():
 
 @app.route('/update_server', methods=['POST'])
 def update():
+    abort_code = 418
+    # Do initial validations on required headers
+    required_headers = ['X-Github-Event', 'X-Github-Delivert', 'X-Hub-Signature', 'User_Agent']
+    if not all(reqd_header in request.headers for reqd_header in required_headers):
+        abort(abort_code)
+    if not request.is_json:
+        abort(abort_code)
+    ua = request.headers.get('User-Agent')
+    if not ua.startswith('GitHub-Hookshot/'):
+        abort(abort_code)
+
+    event = request.headers.get('X-GitHub-Event')
+    if event != "push":
+        return json.dumps({'msg': "Wrong event type"})
+
+    x_hub_signature = request.headers.get('X-Hub-Signature')
+    # webhook content type should be application/json for request.data to have the payload
+    # request.data is empty in case of x-www-form-urlencoded
+    if not is_valid_signature(x_hub_signature, request.data, w_secret):
+        print('Deploy signature failed: {sig}'.format(sig=x_hub_signature))
+        abort(abort_code)
+
+    payload = request.get_json()
+    if payload is None:
+        print('Deploy payload is empty: {payload}'.format(
+            payload=payload))
+        abort(abort_code)
+
+    if payload['ref'] != 'refs/heads/master':
+        return json.dumps({'msg': 'Not master; ignoring'})
+
     repo = git.Repo('.')
-    print(repo)
     origin = repo.remotes.origin
-    origin.pull()
-    return 'updated server succesfully', 200
+
+    pull_info = origin.pull()
+
+    if len(pull_info) == 0:
+        return json.dumps({'msg': "Didn't pull any information from remote!"})
+    if pull_info[0].flags > 128:
+        return json.dumps({'msg': "Didn't pull any information from remote!"})
+
+    commit_hash = pull_info[0].commit.hexsha
+    build_commit = f'build_commit = "{commit_hash}"'
+    print(f'{build_commit}')
+    return 'Updated PythonAnywhere server to commit {commit}'.format(commit=commit_hash)
 
 
 @socketio.on('submit')
