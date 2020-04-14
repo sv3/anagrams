@@ -43,7 +43,7 @@ def info():
 def update():
     abort_code = 418
     # Do initial validations on required headers
-    required_headers = ['X-Github-Event', 'X-Github-Delivert', 'X-Hub-Signature', 'User_Agent']
+    required_headers = ['X-Github-Event', 'X-Github-Delivery', 'X-Hub-Signature', 'User-Agent']
     if not all(reqd_header in request.headers for reqd_header in required_headers):
         abort(abort_code)
     if not request.is_json:
