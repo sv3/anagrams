@@ -1,10 +1,13 @@
-from flask import Flask, request, render_template, redirect, url_for, abort
+from flask import Flask, request, render_template, abort
 from flask_socketio import SocketIO
 import git
+import json
 from check_signature import is_valid_signature
 from pirate_scrabble import toblocks, pickletter, recursive
 import string
 
+with open('/home/sv3/secret.txt') as f:
+    w_secret = f.read()[:-1] # strip newline
 
 app = Flask(__name__)
 app.config['SECRET KEY'] = 'secret!'
@@ -100,7 +103,7 @@ def handle_message(word):
     messages = []
     word = word.upper()
     result = False
-    
+
     # is it a valid word?
     if len(word) == 0:
         letter = pickletter(pool)
