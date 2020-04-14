@@ -7,7 +7,7 @@ from pirate_scrabble import toblocks, pickletter, recursive
 import string
 
 with open('/home/sv3/secret.txt') as f:
-    w_secret = f.read()
+    w_secret = f.read()[:-1]
 
 app = Flask(__name__)
 app.config['SECRET KEY'] = 'secret!'
