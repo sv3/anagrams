@@ -23,8 +23,8 @@ label {
     display: block;
     min-width: 5em;
     min-height: 1em;
-    margin-top: 0.2em;
-    margin-bottom: 0.2em;
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
     line-height: 110%;
     letter-spacing: 0.1em;
 }
@@ -35,4 +35,14 @@ label {
 
 #startbutton {
     font-size: 2em;
+}
+
+
+#wordform {
+    margin: 0.4rem 0;
+}
+
+#newwordmessage {
+    height: 1em;
+    margin: 0.1rem 0;
 }

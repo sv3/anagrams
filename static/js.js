@@ -24,8 +24,10 @@ socket.on('newword', function(word) {
     console.log(word);
     var pool = document.getElementById('pool');
     var words = document.getElementById('words');
+    var message = document.getElementById('newwordmessage');
     pool.textContent = word[1];
     words.textContent = word[2];
+    message.textContent = word[3];
 });
 
 

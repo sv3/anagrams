@@ -33,7 +33,7 @@ def anagrams():
     if request.method == 'GET':
         poolletters = toblocks(pool_flipped)
         blockwords = [ toblocks(word) for word in played_words ]
-        return render_template('index.html', messages=messages, poolletters=poolletters, words=blockwords)
+        return render_template('index.html', poolletters=poolletters, words=blockwords)
     else:
         return 'what the heck'
 
@@ -140,4 +140,7 @@ def handle_message(word):
 
 
 if __name__ == '__main__':
-    socketio.run(app)
+    if app.env == 'development':
+        socketio.run(app, host='0.0.0.0', port=80)
+    else:
+        socketio.run(app)
