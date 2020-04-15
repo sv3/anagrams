@@ -13,7 +13,7 @@ with open('../secret.txt') as f:
     w_secret = f.read()[:-1]
 
 app = Flask(__name__)
-app.config['SECRET KEY'] = 'secret!'
+app.config['SECRET KEY'] = w_secret
 socketio = SocketIO(app)
 
 
