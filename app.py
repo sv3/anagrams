@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from flask import Flask, request, render_template, abort
 from flask_socketio import SocketIO
 import git
@@ -6,7 +9,7 @@ from check_signature import is_valid_signature
 from pirate_scrabble import toblocks, pickletter, recursive
 import string
 
-with open('/home/sv3/secret.txt') as f:
+with open('../secret.txt') as f:
     w_secret = f.read()[:-1]
 
 app = Flask(__name__)
@@ -20,7 +23,6 @@ with open('twl06.txt') as twl06:
 min_word_length = 3
 alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
-# pool_flipped = [0 for i in range(26)]
 pool_flipped = ''
 played_words = []
 messages = []
@@ -86,8 +88,8 @@ def update():
         return json.dumps({'msg': "Didn't pull any information from remote!"})
 
     commit_hash = pull_info[0].commit.hexsha
-    build_commit = f'build_commit = "{commit_hash}"'
-    print(f'{build_commit}')
+    build_commit = 'build_commit = "{commit_hash}"'.format(commit_hash=commit_hash)
+    print('{build_commit}')
     return 'Updated PythonAnywhere server to commit {commit}'.format(commit=commit_hash)
 
 
@@ -111,16 +113,19 @@ def handle_message(word):
         pool[letterindex] -= 1
         pool_flipped = pool_flipped + letter
     elif len(word) < min_word_length:
-        messages.append(f'That word is too short. Minimum length is {min_word_length}')
+        messages.append('That word is too short. Minimum length is {min_word_length}'.format(min_word_length=min_word_length))
+        pass
     elif word not in dictionary:
-        messages.append(f'{word} is not even a word ⚆_⚆')
+        messages.append('{word} is not even a word ⚆_⚆'.format(word=word))
+        pass
     else:
         result, pool_flipped_new, played_words_new = recursive(word, pool_flipped, played_words, 0)
         if result == False:
-            messages.append(f'You can\'t make {word} out of the available letters')
+            messages.append('You can\'t make {word} out of the available letters'.format(word=word))
+            pass
 
     if result == True:
-        messages.append(f'You claimed {word}')
+        messages.append('You claimed {word}'.format(word=word))
         played_words = played_words_new.copy()
         played_words.append(word)
         pool_flipped = pool_flipped_new
@@ -131,4 +136,4 @@ def handle_message(word):
 
 
 if __name__ == '__main__':
-    socketio.run(app, use_reloader=True, debug=True, host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0', port=8000)
