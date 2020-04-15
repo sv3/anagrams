@@ -32,7 +32,6 @@ messages = []
 def anagrams():
     if request.method == 'GET':
         poolletters = toblocks(pool_flipped)
-        print(messages)
         blockwords = [ toblocks(word) for word in played_words ]
         return render_template('index.html', messages=messages, poolletters=poolletters, words=blockwords)
     else:
@@ -132,7 +131,7 @@ def handle_message(word):
 
     blockwords = ' '.join([ toblocks(word) for word in played_words ])
     poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('newword', [word, poolstring, blockwords])
+    socketio.emit('newword', [word, poolstring, blockwords, messages])
 
 
 if __name__ == '__main__':
