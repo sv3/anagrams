@@ -89,8 +89,8 @@ def update():
 
     commit_hash = pull_info[0].commit.hexsha
     build_commit = 'build_commit = "{commit_hash}"'.format(commit_hash=commit_hash)
-    print('{build_commit}')
-    return 'Updated PythonAnywhere server to commit {commit}'.format(commit=commit_hash)
+    print(str(build_commit))
+    return 'Updated Anagrams server to commit {commit}'.format(commit=commit_hash)
 
 
 @socketio.on('submit')
