@@ -43,6 +43,11 @@ def info():
     return app.send_static_file('info.html')
 
 
+@app.route('/favicon.ico')
+def favicon():
+    return app.send_static_file('favicon.ico')
+
+
 @app.route('/update_server', methods=['POST'])
 def update():
     abort_code = 418

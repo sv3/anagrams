@@ -1,3 +1,5 @@
+TO DO:
+
 make rulesets:
 
 - letters must be rearranged
@@ -10,3 +12,9 @@ implement users with separate word pools
 implement turns
 
 deploy hook for google compute engine
+
+
+NOTES:
+
+favicons generated here:
+https://favicon.io/favicon-generator/?t=%F0%9F%84%B0&ff=Leckerli+One&fs=110&fc=%23005&b=rounded&bc=%23FFDE34
