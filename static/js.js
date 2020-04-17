@@ -16,9 +16,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 var socket = io();
 socket.on('connect', function() {
-    console.log('connectedsocket');
+    console.log('connected socket');
+
+    if (localStorage.getItem('userid') === null) {
+        console.log('requesting new id');
+        socket.emit('getnewid');
+    };
+
     socket.emit('word', {data: 'I\'m connected!'});
 });
+
+socket.on('getnewid', function(id) {
+    console.log('got new id: ' + id);
+    localStorage.setItem('userid', id);
+});
+
+
 
 socket.on('newword', function(word) {
     console.log(word);
@@ -29,6 +42,8 @@ socket.on('newword', function(word) {
     words.textContent = word[2];
     message.textContent = word[3];
 });
+
+
 
 
 // Get user name stored on this device

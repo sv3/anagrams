@@ -7,7 +7,7 @@ import git
 import json
 from check_signature import is_valid_signature
 from pirate_scrabble import toblocks, pickletter, recursive
-import string
+import string, random
 
 with open('../secret.txt') as f:
     w_secret = f.read()[:-1]
@@ -26,6 +26,7 @@ pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 pool_flipped = ''
 played_words = []
 messages = []
+userids = []
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -95,6 +96,15 @@ def update():
     build_commit = 'build_commit = "{commit_hash}"'.format(commit_hash=commit_hash)
     print(str(build_commit))
     return 'Updated Anagrams server to commit {commit}'.format(commit=commit_hash)
+
+
+@socketio.on('getnewid')
+def makenewid():
+    lettnum = string.ascii_letters + string.digits
+    newid = ''.join( random.choice(lettnum) for i in range(10) )
+    print('sending back newly generated id: ' + newid)
+    socketio.emit('getnewid', newid)
+
 
 
 @socketio.on('submit')
