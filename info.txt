@@ -11,10 +11,41 @@ implement users with separate word pools
 
 implement turns
 
-deploy hook for google compute engine
+enable https
+
 
 
 NOTES:
 
 favicons generated here:
 https://favicon.io/favicon-generator/?t=%F0%9F%84%B0&ff=Leckerli+One&fs=110&fc=%23005&b=rounded&bc=%23FFDE34
+
+
+
+APP STRUCTURE:
+
+ - intro screen:
+    - description of rules
+    - (FUTURE) list of rooms with players in each (click to join)
+        - each room has unique url at /room/<id>
+    + new room button (optionally enter player name)
+
+ - room:
+    - for each player:
+        - player name
+        - words
+    - letter pool
+    - your words
+    - last play description or attempted play feedback (on timeout?)
+    - text entry field
+
+
+
+ACTIONS:
+
+ - try to play a word:
+    - send word to server
+    - if word is valid:
+        - server sends updated word lists + pool + "x played WORD by stealing y" message to all clients in room 
+    - if word is not valid:
+        - server sends reason to originator
