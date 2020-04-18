@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask, request, render_template, abort
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send, emit
 import git
 import json
 from update_server import update
@@ -27,7 +27,7 @@ pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 pool_flipped = ''
 played_words = []
 messages = []
-userids = []
+userids = set()
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -58,6 +58,7 @@ app.add_url_rule('/update_server', 'update_server', update, methods=['POST'])
 def makenewid():
     lettnum = string.ascii_letters + string.digits
     newid = ''.join( random.choice(lettnum) for i in range(10) )
+    userids.append(newid)
     print('sending back newly generated id: ' + newid)
     socketio.emit('newid', newid)
 
@@ -68,8 +69,6 @@ def handle_message(word):
     global pool
     global pool_flipped
     global played_words
-    global messages
-    tilestatus = ''
 
     messages = []
     word = word.upper()
@@ -81,20 +80,19 @@ def handle_message(word):
         letterindex = alphabet.find(letter)
         pool[letterindex] -= 1
         pool_flipped = pool_flipped + letter
+        emit('wordmess', 'Added a letter to the pool')
     elif len(word) < min_word_length:
-        messages.append('That word is too short. Minimum length is {min_word_length}'.format(min_word_length=min_word_length))
-        pass
+        emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
     elif word not in dictionary:
-        messages.append('{word} is not even a word ⚆_⚆'.format(word=word))
-        pass
+        emit('wordmess', f'{word} is not even a word ⚆_⚆')
     else:
+        # recursively try to make the word from a combination of existing words and letters
         result, pool_flipped_new, played_words_new = recursive(word, pool_flipped, played_words, 0)
         if result == False:
-            messages.append('You can\'t make {word} out of the available letters'.format(word=word))
-            pass
+            emit('wordmess', f'You can\'t make {word} out of the available letters')
 
     if result == True:
-        messages.append('You claimed {word}'.format(word=word))
+        messages.append(f'A player claimed {word}')
         played_words = played_words_new.copy()
         played_words.append(word)
         pool_flipped = pool_flipped_new

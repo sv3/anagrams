@@ -43,6 +43,6 @@ label {
 }
 
 #newwordmessage {
-    height: 1em;
+    min-height: 1em;
     margin: 0.1rem 0;
 }
