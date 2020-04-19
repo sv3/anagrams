@@ -99,7 +99,7 @@ def handle_message(userid, word):
 
     blockwords = ' '.join([ toblocks(word) for word in played_words ])
     poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('newword', [word, poolstring, str(played_words), messages, userid])
+    socketio.emit('newword', [word, poolstring, played_words, messages, userid])
 
 
 if __name__ == '__main__':

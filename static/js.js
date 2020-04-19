@@ -18,10 +18,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
     socket.on('newword', function(word) {
         console.log(word);
         let pool = document.getElementById('pool');
-        let words = document.getElementById('words');
+        let wordlist = document.getElementById('wordlist');
         let message = document.getElementById('newwordmessage');
         pool.textContent = word[1];
-        words.textContent = word[2];
+        wordlist.innerHTML = '';
+        for (const playerid in word[2]) {
+            let namediv = document.createElement("div");
+            namediv.append(document.createTextNode(playerid));
+            let wordsdiv = document.createElement("div");
+            wordsdiv.className = 'words';
+            wordsdiv.append(document.createTextNode(word[2][playerid]));
+            wordlist.append(namediv, wordsdiv);
+        };
         message.textContent = word[3];
     });
 
