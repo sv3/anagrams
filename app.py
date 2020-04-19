@@ -7,7 +7,7 @@ import git
 import json
 from update_server import update
 from check_signature import is_valid_signature
-from pirate_scrabble import toblocks, pickletter, recursive
+from pirate_scrabble import toblocks, pickletter, getword
 import string, random
 
 with open('../secret.txt') as f:
@@ -25,19 +25,15 @@ min_word_length = 3
 alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 pool_flipped = ''
-played_words = []
+played_words = {}
 messages = []
-userids = set()
 
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/')
 def anagrams():
-    if request.method == 'GET':
-        poolletters = toblocks(pool_flipped)
-        blockwords = [ toblocks(word) for word in played_words ]
-        return render_template('index.html', poolletters=poolletters, words=blockwords)
-    else:
-        return 'what the heck'
+    poolletters = toblocks(pool_flipped)
+    # blockwords = [ toblocks(word) for word in played_words.values() ]
+    return render_template('index.html', poolletters=poolletters) #, words=played_words.items())
 
 
 @app.route('/info')
@@ -58,13 +54,13 @@ app.add_url_rule('/update_server', 'update_server', update, methods=['POST'])
 def makenewid():
     lettnum = string.ascii_letters + string.digits
     newid = ''.join( random.choice(lettnum) for i in range(10) )
-    userids.append(newid)
+    played_words[newid] = []
     print('sending back newly generated id: ' + newid)
-    socketio.emit('newid', newid)
+    emit('newid', newid)
 
 
 @socketio.on('submit')
-def handle_message(word):
+def handle_message(userid, word):
     print('received message: ' + str(word))
     global pool
     global pool_flipped
@@ -87,19 +83,23 @@ def handle_message(word):
         emit('wordmess', f'{word} is not even a word ⚆_⚆')
     else:
         # recursively try to make the word from a combination of existing words and letters
-        result, pool_flipped_new, played_words_new = recursive(word, pool_flipped, played_words, 0)
+        result, pool_flipped_new, played_words_new = getword(word, pool_flipped, played_words, 0)
         if result == False:
             emit('wordmess', f'You can\'t make {word} out of the available letters')
 
     if result == True:
-        messages.append(f'A player claimed {word}')
+        messages.append(f'{userid} claimed {word}')
+        print(f'{userid} claimed {word}')
         played_words = played_words_new.copy()
-        played_words.append(word)
+        if userid in played_words:
+            played_words[userid].append(word)
+        else:
+            played_words[userid] = [word]
         pool_flipped = pool_flipped_new
 
     blockwords = ' '.join([ toblocks(word) for word in played_words ])
     poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('newword', [word, poolstring, blockwords, messages])
+    socketio.emit('newword', [word, poolstring, str(played_words), messages, userid])
 
 
 if __name__ == '__main__':

@@ -13,6 +13,10 @@ implement turns
 
 enable https
 
+separate lines for global and user messages
+
+make systemd service on new server
+
 
 
 NOTES:

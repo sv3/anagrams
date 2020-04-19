@@ -1,8 +1,14 @@
 body {
-    font-family:'Droid Sans', sans-serif;
+    /*font-family:'Droid Sans', sans-serif;*/
+    font-family: sans-serif;
     background-color:rgb(255, 222, 52);
-    margin: 10%;
+    margin: 4%;
     font-size: 110%;
+}
+
+h1 {
+    margin: 0.4em auto;
+    font-size: 1.6em;
 }
 
 label {
@@ -18,8 +24,8 @@ label {
 
 #pool, #words{
     background-color: #fcfae5;
-    font-size: 1.8em;
-    padding: 0.2em 0.3em;
+    font-size: 1.5em;
+    padding: 0.2em 0.2em;
     display: block;
     min-width: 5em;
     min-height: 1em;
@@ -27,6 +33,7 @@ label {
     margin-bottom: 0.4rem;
     line-height: 110%;
     letter-spacing: 0.1em;
+    border-radius: 0.05em
 }
 
 #info {
@@ -46,3 +53,4 @@ label {
     min-height: 1em;
     margin: 0.1rem 0;
 }
+

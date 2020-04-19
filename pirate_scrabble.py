@@ -9,7 +9,7 @@ alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
 pool_flipped = ''
-played_words = []
+played_words = {}
 
 
 def countstostring(letterpool):
@@ -52,36 +52,35 @@ def check_fully_contained(donor, target):
     return target
 
 
-def recursive(target, letterpool, played_words, depth):
+def getword(target, letterpool, played_words, depth):
     target = target.upper()
-    indent = depth*2
-    print(' '*indent + 'target',target,'  letterpool',letterpool,'  played_words',played_words)
+    indent = ' ' * depth * 2
+    print(indent + 'target',target,'  letterpool',letterpool,'  played_words',played_words)
+    played_words_new = played_words.copy()
 
-    if played_words != []:
-        for donor in played_words:
+    for player, player_words in played_words.items():
+        for donor in player_words:
             # Check if any of the played words are fully contained in the target word
-            remaining = check_fully_contained(donor, target)
-            if remaining == False:
-                # try the next word in played_words
+            remaining_letters = check_fully_contained(donor, target)
+            if remaining_letters == False:
+                # try the next word in player_words
                 continue
-            elif remaining == '':
+            elif remaining_letters == '':
                 # found a word to steal
                 if depth == 0:
+                    # can't steal a just a single word - must combine with other letters
                     continue
-                played_words_new.remove(donor)
-                print(' '*indent + 'stealing ' + donor + ' to make ' + target)
+                played_words_new[player].remove(donor)
+                print(indent + 'stealing ' + donor)
                 return True, letterpool, played_words_new
             else:
                 # found a word to steal for some of the letters needed - we need to go deeper
-                played_words_new = played_words.copy()
-                played_words_new.remove(donor)
-                print(' '*indent + 'trying to steal', donor, 'to make', target, '.  remaining:', remaining)
-                result, newpool, played_words_new = recursive(remaining, letterpool, played_words_new, depth+1)
+                played_words_new[player].remove(donor)
+                print(indent + 'trying to steal', donor, 'to make', target, '.  remaining:', remaining_letters)
+                result, newpool, played_words_new = getword(remaining_letters, letterpool, played_words_new, depth+1)
                 if result == True:
                     return True, newpool, played_words_new
-                else:
-                    played_word_new = played_words.copy()
-        print(' '* indent + 'failed to find a word to steal for the letters:', target)
+    print(indent + 'failed to find a word to steal for the letters:', target)
 
     poollist = list(letterpool)
     target_remaining = ''
@@ -93,19 +92,27 @@ def recursive(target, letterpool, played_words, depth):
             target_remaining = target_remaining + letter
 
     if target_remaining == '':
-        print(' '*indent + 'taking these letters from the pool:', target)
+        print(indent + 'taking these letters from the pool:', target)
         return True, ''.join(poollist), played_words
     else:
-        print(' '*indent + 'failed to find these letters from', target, 'in the pool:', target_remaining, '- backtracking')
+        print(indent + 'failed to find these letters from', target, 'in the pool:', target_remaining, '- backtracking')
         return False, letterpool, played_words
 
 
 
 if __name__ == '__main__':
+    # play in the terminal with an imaginary and passive opponent
+    playerid = 'itsme'
+    played_words[playerid] = []
+    played_words['otherguy'] = ['CAT', 'HAT', 'FAT']
+
     while True:
+
+        print()
         print('tiles in pool: ', end='')
         print(pool_flipped)
-        print('words played: ' + '  '.join(played_words) )
+        for player, words in played_words.items():
+            print(f'{player}:  {" ".join(words)}')
 
         word = input('enter word: ').upper()
         # clear_output()
@@ -114,20 +121,18 @@ if __name__ == '__main__':
 
         # is it a valid word?
         if len(word) == 0:
-            pass
-        elif len(word) < min_word_length:
-            print('That word is too short. Minimum length is', min_word_length)
-        elif word not in dictionary:
-            print(word, 'is not even a word ⚆_⚆')
-        else:
-            result, pool_flipped, played_words = recursive(word, pool_flipped, played_words, 0)
-
-        if result:
-            print('You claimed ' + word)
-            played_words.append(word)
-        else:
             letter = pickletter(pool)
             print('flipped over', letter)
             letterindex = alphabet.find(letter)
             pool[letterindex] -= 1
             pool_flipped = pool_flipped + letter
+        elif len(word) < min_word_length:
+            print('That word is too short. Minimum length is', min_word_length)
+        elif word not in dictionary:
+            print(word, 'is not even a word ⚆_⚆')
+        else:
+            result, pool_flipped, played_words = getword(word, pool_flipped, played_words, 0)
+
+        if result:
+            print('You claimed ' + word)
+            played_words[playerid].append(word)

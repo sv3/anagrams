@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             console.log('requesting new id');
             socket.emit('newid');
         };
-        socket.emit('word', {data: 'I\'m connected!'});
     });
 
     socket.on('newid', function(id) {
@@ -23,9 +22,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         let message = document.getElementById('newwordmessage');
         pool.textContent = word[1];
         words.textContent = word[2];
-        if (word[3] != '') {
-            message.textContent = word[3];
-        };
+        message.textContent = word[3];
     });
 
     socket.on('wordmess', function(mess) {
@@ -37,9 +34,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let form = document.getElementById('wordform');
 
     form.addEventListener('submit', function(event) {
-        //localStorage.name = form[0].value;
         let message = form[0].value;
-        socket.emit('submit', message);
+        socket.emit('submit', localStorage.getItem('userid'), message);
         console.log('submitted');
         form[0].value = '';
         event.preventDefault();
