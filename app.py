@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request, render_template, abort, redirect
+from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit
 from update_server import update
 from pirate_scrabble import toblocks, pickletter, getword

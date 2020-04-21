@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import git
 import json
-from flask import request
+from flask import request, abort
 from check_signature import is_valid_signature
 
 
