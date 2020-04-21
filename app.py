@@ -15,7 +15,6 @@ app = Flask(__name__)
 app.config['SECRET KEY'] = w_secret
 socketio = SocketIO(app)
 
-
 with open('twl06.txt') as twl06:
     dictionary = [word[:-1].upper() for word in twl06.readlines()[2:]]
 
@@ -24,13 +23,11 @@ alphabet = string.ascii_uppercase
 pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 pool_flipped = ''
 played_words = {}
-messages = []
 
 
 @app.route('/')
 def anagrams():
     poolletters = toblocks(pool_flipped)
-    # blockwords = [ toblocks(word) for word in played_words.values() ]
     return render_template('index.html', poolletters=poolletters)
 
 
@@ -39,9 +36,10 @@ def info():
     return app.send_static_file('info.html')
 
 
-@app.route('/favicon.ico')
-def favicon():
-    return app.send_static_file('favicon.ico')
+@app.rounte('/reset')
+def reset():
+    pool_flipped = ''
+    played_words = {}
 
 
 # endpoint that pulls from github and restarts the server
@@ -67,13 +65,12 @@ def handle_message(userid, word):
     word = word.upper()
     result = False
 
-    # is it a valid word?
+    # Is the word length 0? Is it shorter than the minimum length? Is it a real word?
     if len(word) == 0:
         letter = pickletter(pool)
         letterindex = alphabet.find(letter)
         pool[letterindex] -= 1
         pool_flipped = pool_flipped + letter
-        # emit('wordmess', 'Added a letter to the pool')
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
     elif word not in dictionary:
@@ -94,7 +91,7 @@ def handle_message(userid, word):
             played_words[userid] = [word]
         pool_flipped = pool_flipped_new
     blockwords = {}
-    # blockwords = ' '.join([ toblocks(word) for word in played_words ])
+
     for user in played_words.keys():
         blockwords[user] = ' '.join([ toblocks(word) for word in played_words[user] ])
     poolstring = '​'.join(toblocks(pool_flipped))
