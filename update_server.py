@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import git
+import json
 
 def update():
     abort_code = 418
@@ -34,8 +36,11 @@ def update():
         return json.dumps({'msg': 'Not master; ignoring'})
 
     repo = git.Repo('.')
-    origin = repo.remotes.origin
 
+    if repo.active_branch.name != 'master':
+        return json.dumps({'msg': 'Server not on master; ignoring'})
+
+    origin = repo.remotes.origin
     pull_info = origin.pull()
 
     if len(pull_info) == 0:

@@ -3,8 +3,6 @@
 
 from flask import Flask, request, render_template, abort
 from flask_socketio import SocketIO, send, emit
-import git
-import json
 from update_server import update
 from check_signature import is_valid_signature
 from pirate_scrabble import toblocks, pickletter, getword
