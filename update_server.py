@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import git
 import json
+from flask import request
+
 
 def update():
     abort_code = 418
