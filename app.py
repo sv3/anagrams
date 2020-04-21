@@ -33,7 +33,7 @@ messages = []
 def anagrams():
     poolletters = toblocks(pool_flipped)
     # blockwords = [ toblocks(word) for word in played_words.values() ]
-    return render_template('index.html', poolletters=poolletters) #, words=played_words.items())
+    return render_template('index.html', poolletters=poolletters)
 
 
 @app.route('/info')
@@ -61,7 +61,6 @@ def makenewid():
 
 @socketio.on('submit')
 def handle_message(userid, word):
-    print('received message: ' + str(word))
     global pool
     global pool_flipped
     global played_words
@@ -76,7 +75,7 @@ def handle_message(userid, word):
         letterindex = alphabet.find(letter)
         pool[letterindex] -= 1
         pool_flipped = pool_flipped + letter
-        emit('wordmess', 'Added a letter to the pool')
+        # emit('wordmess', 'Added a letter to the pool')
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
     elif word not in dictionary:
@@ -96,10 +95,12 @@ def handle_message(userid, word):
         else:
             played_words[userid] = [word]
         pool_flipped = pool_flipped_new
-
-    blockwords = ' '.join([ toblocks(word) for word in played_words ])
+    blockwords = {}
+    # blockwords = ' '.join([ toblocks(word) for word in played_words ])
+    for user in played_words.keys():
+        blockwords[user] = ' '.join([ toblocks(word) for word in played_words[user] ])
     poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('newword', [word, poolstring, played_words, messages, userid])
+    socketio.emit('newword', [word, poolstring, blockwords, ''.join(messages)])
 
 
 if __name__ == '__main__':

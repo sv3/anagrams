@@ -1,52 +1,79 @@
 document.addEventListener('DOMContentLoaded', (event) => {
 
-    let socket = io();
+    let socket = io()
 
     socket.on('connect', function() {
-        console.log('connected socket');
+        console.log('connected socket')
+        // if a user id is not stored, request one from the server
         if (localStorage.getItem('userid') === null) {
-            console.log('requesting new id');
-            socket.emit('newid');
-        };
-    });
+            console.log('requesting new id')
+            socket.emit('newid')
+        }
+    })
+
 
     socket.on('newid', function(id) {
-        console.log('got new id: ' + id);
-        localStorage.setItem('userid', id);
-    });
+        // got a message containing a new id for this session
+        console.log('got new id: ' + id)
+        localStorage.setItem('userid', id)
+    })
 
-    socket.on('newword', function(word) {
-        console.log(word);
-        let pool = document.getElementById('pool');
-        let wordlist = document.getElementById('wordlist');
-        let message = document.getElementById('newwordmessage');
-        pool.textContent = word[1];
-        wordlist.innerHTML = '';
-        for (const playerid in word[2]) {
-            let namediv = document.createElement("div");
-            namediv.append(document.createTextNode(playerid));
-            let wordsdiv = document.createElement("div");
-            wordsdiv.className = 'words';
-            wordsdiv.append(document.createTextNode(word[2][playerid]));
-            wordlist.append(namediv, wordsdiv);
-        };
-        message.textContent = word[3];
-    });
+
+    function renderwords(wordlists) {
+        userid = localStorage.getItem('userid')
+        let wordlistdiv = document.getElementById('wordlist')
+        wordlistdiv.innerHTML = ''          // clear word lists
+
+        for (const playerid in wordlists) {
+            if (playerid === userid) {continue} // deal with the current user later
+            htmlstring = `
+            <div class='namelabel'>${playerid}</div>
+            <div class='words'>${wordlists[playerid]}</div>`
+            wordlistdiv.innerHTML += htmlstring
+        }
+        
+        // append current user's words at end of list
+        htmlstring = `
+        <div class='namelabel'>Your words</div>
+        <div class='words'>${wordlists[userid]}</div>`
+        wordlistdiv.innerHTML += htmlstring
+    }
+
+
+    socket.on('newword', function(wordresponse) {
+        console.log(wordresponse)
+
+        let pool = document.getElementById('pool')
+        let message = document.getElementById('globalmessage')
+
+        pool.textContent = wordresponse[1]  // render letter pool
+        
+        renderwords(wordresponse[2])      // dictionary of word lists by player id
+
+        // display global message
+        if (wordresponse[3] !== ''){
+            message.textContent = wordresponse[3]
+        }
+    })
+
 
     socket.on('wordmess', function(mess) {
-        console.log('word message: ' + mess);
-        let message = document.getElementById('newwordmessage');
-        message.textContent = mess;
-    });
+        console.log('word message: ' + mess)
+        let message = document.getElementById('localmessage')
+        message.textContent = mess
+        setTimeout(function() {
+            message.textContent = ''
+        }, 6000)
+    })
 
-    let form = document.getElementById('wordform');
+
+    let form = document.getElementById('wordform')
 
     form.addEventListener('submit', function(event) {
-        let message = form[0].value;
-        socket.emit('submit', localStorage.getItem('userid'), message);
-        console.log('submitted');
-        form[0].value = '';
-        event.preventDefault();
-        return false;
-    });
-});
+        let message = form[0].value
+        socket.emit('submit', localStorage.getItem('userid'), message)
+        form[0].value = ''
+        event.preventDefault()
+        return false
+    })
+})

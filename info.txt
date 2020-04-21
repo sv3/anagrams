@@ -7,13 +7,9 @@ make rulesets:
 
 implement scoring: (letters in word - n)
 
-implement users with separate word pools
-
 implement turns
 
 enable https
-
-separate lines for global and user messages
 
 make systemd service on new server
 

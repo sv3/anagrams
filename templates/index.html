@@ -18,14 +18,9 @@
   <div>
     <div id="poollabel">Available Tiles:&ensp;</div>
     <div id="pool">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>
-    <!-- {% for key,value in words %} -->
-    <!--     <div>{{key}}</div> -->
-    <!--     <div>{{value}}</div> -->
-    <!-- {% endfor %} -->
-    <div id="wordslabel">Words:</div>
-    <!-- <div id="words">{{ words|join(' ') }}</div> -->
     <div id="wordlist"></div>
-    <div id="newwordmessage">&nbsp;</div>
+    <div id="globalmessage">&nbsp;</div>
+    <div id="localmessage">&nbsp;</div>
     <form id="wordform" method="post">
         <input type="text" name="word" id="word" placeholder="type a word or press enter" autofocus autocapitalize=off autocomplete=off>
     </form>
