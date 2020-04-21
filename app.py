@@ -3,7 +3,7 @@
 
 from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit
-from update_server import updateserver
+from update_server import gitpullserver
 from pirate_scrabble import toblocks, pickletter, getword
 import string, random
 
@@ -51,7 +51,7 @@ def reset():
 # endpoint that pulls from github and restarts the server
 @app.route('/update_server', methods=['POST'])
 def updateserver():
-    return updateserver(w_secret)
+    return gitpullserver(w_secret)
 
 
 @socketio.on('adduser')
@@ -83,7 +83,7 @@ def update(pool_flipped, played_words):
 @socketio.on('update')
 def updateclient():
     update(pool_flipped, played_words)
-    
+
 
 @socketio.on('submit')
 def handle_message(userid, word):
