@@ -13,12 +13,12 @@ played_words = {}
 
 
 def countstostring(letterpool):
-    letterlist = [ alphabet[i]*num for i, num in enumerate(letterpool) ]
+    letterlist = [alphabet[i]*num for i, num in enumerate(letterpool)]
     return ''.join(letterlist)
 
 
-def toblocks(string):
-    letterlist = [ block_alphabet[alphabet.find(l)] for l in string ]
+def toblocks(letterstring):
+    letterlist = [block_alphabet[alphabet.find(l)] for l in letterstring]
     return ''.join(letterlist)
 
 
@@ -31,7 +31,7 @@ def stringtocounts(letters):
 
 
 def pickletter(letterpool):
-    poolstring = ''.join([ alphabet[i]*num for i, num in enumerate(letterpool) ])
+    poolstring = ''.join([alphabet[i]*num for i, num in enumerate(letterpool)])
     letter = random.choice(poolstring)
     return letter
 
@@ -55,14 +55,14 @@ def check_fully_contained(donor, target):
 def getword(target, letterpool, played_words, depth):
     target = target.upper()
     indent = ' ' * depth * 2
-    print(indent + 'target',target,'  letterpool',letterpool,'  played_words',played_words)
+    print(indent + f'target: {target}  letterpool: {letterpool}  played_words: {played_words})')
     played_words_new = played_words.copy()
 
     for player, player_words in played_words.items():
         for donor in player_words:
             # Check if any of the played words are fully contained in the target word
             remaining_letters = check_fully_contained(donor, target)
-            if remaining_letters == False:
+            if not remaining_letters:
                 # try the next word in player_words
                 continue
             elif remaining_letters == '':
@@ -76,9 +76,9 @@ def getword(target, letterpool, played_words, depth):
             else:
                 # found a word to steal for some of the letters needed - we need to go deeper
                 played_words_new[player].remove(donor)
-                print(indent + 'trying to steal', donor, 'to make', target, '.  remaining:', remaining_letters)
+                print(indent + f'trying to steal: {donor} to make {target}.  remaining: {remaining_letters}')
                 result, newpool, played_words_new = getword(remaining_letters, letterpool, played_words_new, depth+1)
-                if result == True:
+                if result:
                     return True, newpool, played_words_new
     print(indent + 'failed to find a word to steal for the letters:', target)
 
@@ -95,7 +95,7 @@ def getword(target, letterpool, played_words, depth):
         print(indent + 'taking these letters from the pool:', target)
         return True, ''.join(poollist), played_words
     else:
-        print(indent + 'failed to find these letters from', target, 'in the pool:', target_remaining, '- backtracking')
+        print(indent + f'failed to find these letters from {target} in the pool: {target_remaining} - backtracking')
         return False, letterpool, played_words
 
 

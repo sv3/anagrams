@@ -61,7 +61,7 @@ def adduser(userid):
 
     blockwords = {}
     for user in played_words.keys():
-        blockwords[user] = ' '.join([ toblocks(word) for word in played_words[user] ])
+        blockwords[user] = ' '.join( [toblocks(word) for word in played_words[user]] )
     poolstring = '​'.join(toblocks(pool_flipped))
     socketio.emit('update', ['', poolstring, blockwords, ''])
 
@@ -99,10 +99,10 @@ def handle_message(userid, word):
     else:
         # recursively try to make the word from a combination of existing words and letters
         result, pool_flipped_new, played_words_new = getword(word, pool_flipped, played_words, 0)
-        if result == False:
+        if not result:
             emit('wordmess', f'You can\'t make {word} out of the available letters')
 
-    if result == True:
+    if result:
         message = f'{userid} claimed {word}'
         print(message)
         played_words = played_words_new.copy()
@@ -114,7 +114,7 @@ def handle_message(userid, word):
     blockwords = {}
 
     for user in played_words.keys():
-        blockwords[user] = ' '.join([ toblocks(word) for word in played_words[user] ])
+        blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
     poolstring = '​'.join(toblocks(pool_flipped))
     socketio.emit('update', [word, poolstring, blockwords, message])
 

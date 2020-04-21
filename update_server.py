@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import git
 import json
+import git
 from flask import request, abort
 from check_signature import is_valid_signature
 
@@ -55,4 +55,3 @@ def update(w_secret):
     build_commit = 'build_commit = "{commit_hash}"'.format(commit_hash=commit_hash)
     print(str(build_commit))
     return 'Updated Anagrams server to commit {commit}'.format(commit=commit_hash)
-
