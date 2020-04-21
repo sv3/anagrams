@@ -19,9 +19,15 @@ with open('twl06.txt') as twl06:
 
 min_word_length = 3
 alphabet = string.ascii_uppercase
-pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
-pool_flipped = ''
-played_words = {}
+
+
+def resetgame():
+    pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
+    pool_flipped = ''
+    played_words = {}
+    return pool, pool_flipped, played_words
+
+pool, pool_flipped, played_words = resetgame()
 
 
 @app.route('/')
@@ -37,10 +43,8 @@ def info():
 
 @app.route('/reset')
 def reset():
-    global pool_flipped
-    global played_words
-    pool_flipped = ''
-    played_words = {}
+    global pool, pool_flipped, played_words
+    pool, pool_flipped, played_words = resetgame()
     return redirect('/')
 
 
@@ -77,7 +81,7 @@ def handle_message(userid, word):
     global pool_flipped
     global played_words
 
-    messages = ''
+    message = ''
     word = word.upper()
     result = False
 
