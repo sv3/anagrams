@@ -54,20 +54,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         pool.textContent = wordresponse[1]  // render letter pool
         
-        renderwords(wordresponse[2])      // dictionary of word lists by player id
+        renderwords(wordresponse[2])        // dictionary of word lists by player id
 
         // display global message
         if (wordresponse[3] !== ''){
             message.textContent = wordresponse[3]
         }
     })
-
+    
+    let messagetimeout
 
     socket.on('wordmess', function(mess) {
         console.log('word message: ' + mess)
         let message = document.getElementById('localmessage')
         message.textContent = mess
-        setTimeout(function() {
+        clearTimeout(messagetimeout)
+        messagetimeout = setTimeout(function() {
             message.textContent = ''
         }, 6000)
     })
