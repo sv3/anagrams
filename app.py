@@ -45,7 +45,7 @@ def reset():
 
 
 # endpoint that pulls from github and restarts the server
-@app.route('/update_server')
+@app.route('/update_server', methods=['POST'])
 def updateserver():
     return update(w_secret)
 
