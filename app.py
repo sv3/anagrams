@@ -56,6 +56,12 @@ def updateserver():
 
 @socketio.on('adduser')
 def adduser(userid):
+    if not userid:
+        lettnum = string.ascii_letters + string.digits
+        userid = ''.join( random.choice(lettnum) for i in range(10) )
+        print('sending back newly generated id: ' + userid)
+        emit('userid', userid)
+
     if userid not in played_words:
         played_words[userid] = []
 
@@ -66,14 +72,18 @@ def adduser(userid):
     socketio.emit('update', ['', poolstring, blockwords, ''])
 
 
-@socketio.on('newid')
-def makenewid():
-    lettnum = string.ascii_letters + string.digits
-    newid = ''.join( random.choice(lettnum) for i in range(10) )
-    played_words[newid] = []
-    print('sending back newly generated id: ' + newid)
-    emit('newid', newid)
+def update(pool_flipped, played_words):
+    blockwords = {}
+    for user in played_words.keys():
+        blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
+    poolstring = '​'.join(toblocks(pool_flipped))
+    socketio.emit('update', ['', poolstring, blockwords, ''])
 
+
+@socketio.on('update')
+def updateclient():
+    update(pool_flipped, played_words)
+    
 
 @socketio.on('submit')
 def handle_message(userid, word):
@@ -111,12 +121,8 @@ def handle_message(userid, word):
         else:
             played_words[userid] = [word]
         pool_flipped = pool_flipped_new
-    blockwords = {}
 
-    for user in played_words.keys():
-        blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
-    poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('update', [word, poolstring, blockwords, message])
+    update(pool_flipped, played_words)
 
 
 if __name__ == '__main__':

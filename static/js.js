@@ -19,6 +19,24 @@ function renderwords(wordlists) {
     wordlistdiv.innerHTML += htmlstring
 }
 
+function update(wordresponse) {
+    console.log('update')
+    if (wordresponse == null) {return}
+    console.log(wordresponse)
+
+    let pool = document.getElementById('pool')
+    let message = document.getElementById('globalmessage')
+
+    pool.textContent = wordresponse[1]  // render letter pool
+
+    renderwords(wordresponse[2])        // dictionary of word lists by player id
+
+    // display global message
+    if (wordresponse[3] !== ''){
+        message.textContent = wordresponse[3]
+    }
+}
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -29,38 +47,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // if a user id is not stored, request one from the server
         if (localStorage.getItem('userid') === null) {
             console.log('requesting new id')
-            socket.emit('newid')
+            socket.emit('adduser', '')
+        // if a user id is stored, report it to the server to join game
         } else {
-            console.log('adduser')
             socket.emit('adduser', localStorage.getItem('userid'))
         }
+        socket.emit('update')
     })
 
 
-    socket.on('newid', function(id) {
+    socket.on('userid', function(id) {
         // got a message containing a new id for this session
         console.log('got new id: ' + id)
         localStorage.setItem('userid', id)
     })
 
-
-    socket.on('update', function(wordresponse) {
-        console.log('update')
-        if (wordresponse == null) {return}
-        console.log(wordresponse)
-
-        let pool = document.getElementById('pool')
-        let message = document.getElementById('globalmessage')
-
-        pool.textContent = wordresponse[1]  // render letter pool
-        
-        renderwords(wordresponse[2])        // dictionary of word lists by player id
-
-        // display global message
-        if (wordresponse[3] !== ''){
-            message.textContent = wordresponse[3]
-        }
-    })
+    socket.on('update', update)
     
     let messagetimeout
 
