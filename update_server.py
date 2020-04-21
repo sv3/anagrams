@@ -6,7 +6,7 @@ from flask import request, abort
 from check_signature import is_valid_signature
 
 
-def update():
+def update(w_secret):
     abort_code = 418
     # Do initial validations on required headers
     required_headers = ['X-Github-Event', 'X-Github-Delivery', 'X-Hub-Signature', 'User-Agent']

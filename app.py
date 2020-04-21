@@ -45,7 +45,7 @@ def reset():
 
 
 # endpoint that pulls from github and restarts the server
-app.add_url_rule('/update_server', 'update_server', update, methods=['POST'])
+app.add_url_rule('/update_server', 'update_server', update(w_secret), methods=['POST'])
 
 
 @socketio.on('adduser')
