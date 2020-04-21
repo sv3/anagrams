@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask, request, render_template, abort
+from flask import Flask, request, render_template, abort, redirect
 from flask_socketio import SocketIO, send, emit
 from update_server import update
 from check_signature import is_valid_signature
@@ -36,14 +36,29 @@ def info():
     return app.send_static_file('info.html')
 
 
-@app.rounte('/reset')
+@app.route('/reset')
 def reset():
+    global pool_flipped
+    global played_words
     pool_flipped = ''
     played_words = {}
+    return redirect('/')
 
 
 # endpoint that pulls from github and restarts the server
 app.add_url_rule('/update_server', 'update_server', update, methods=['POST'])
+
+
+@socketio.on('adduser')
+def adduser(userid):
+    if userid not in played_words:
+        played_words[userid] = []
+
+    blockwords = {}
+    for user in played_words.keys():
+        blockwords[user] = ' '.join([ toblocks(word) for word in played_words[user] ])
+    poolstring = '​'.join(toblocks(pool_flipped))
+    socketio.emit('update', ['', poolstring, blockwords, ''])
 
 
 @socketio.on('newid')
@@ -61,7 +76,7 @@ def handle_message(userid, word):
     global pool_flipped
     global played_words
 
-    messages = []
+    messages = ''
     word = word.upper()
     result = False
 
@@ -71,6 +86,7 @@ def handle_message(userid, word):
         letterindex = alphabet.find(letter)
         pool[letterindex] -= 1
         pool_flipped = pool_flipped + letter
+        message = 'Drew a new letter'
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
     elif word not in dictionary:
@@ -82,8 +98,8 @@ def handle_message(userid, word):
             emit('wordmess', f'You can\'t make {word} out of the available letters')
 
     if result == True:
-        messages.append(f'{userid} claimed {word}')
-        print(f'{userid} claimed {word}')
+        message = f'{userid} claimed {word}'
+        print(message)
         played_words = played_words_new.copy()
         if userid in played_words:
             played_words[userid].append(word)
@@ -95,7 +111,7 @@ def handle_message(userid, word):
     for user in played_words.keys():
         blockwords[user] = ' '.join([ toblocks(word) for word in played_words[user] ])
     poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('newword', [word, poolstring, blockwords, ''.join(messages)])
+    socketio.emit('update', [word, poolstring, blockwords, message])
 
 
 if __name__ == '__main__':

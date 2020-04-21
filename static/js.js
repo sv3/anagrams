@@ -1,3 +1,25 @@
+function renderwords(wordlists) {
+    userid = localStorage.getItem('userid')
+    let wordlistdiv = document.getElementById('wordlist')
+    wordlistdiv.innerHTML = ''          // clear word lists
+
+    for (const playerid in wordlists) {
+        if (playerid === userid) {continue} // deal with the current user later
+        if (wordlists[playerid] === '') {continue}
+        htmlstring = `
+        <div class='namelabel'>${playerid}</div>
+        <div class='words'>${wordlists[playerid]}</div>`
+        wordlistdiv.innerHTML += htmlstring
+    }
+
+    // append current user's words at end of list
+    htmlstring = `
+    <div class='namelabel'>Your words</div>
+    <div class='words'>${wordlists[userid]}</div>`
+    wordlistdiv.innerHTML += htmlstring
+}
+
+
 document.addEventListener('DOMContentLoaded', (event) => {
 
     let socket = io()
@@ -8,6 +30,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (localStorage.getItem('userid') === null) {
             console.log('requesting new id')
             socket.emit('newid')
+        } else {
+            console.log('adduser')
+            socket.emit('adduser', localStorage.getItem('userid'))
         }
     })
 
@@ -19,28 +44,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
     })
 
 
-    function renderwords(wordlists) {
-        userid = localStorage.getItem('userid')
-        let wordlistdiv = document.getElementById('wordlist')
-        wordlistdiv.innerHTML = ''          // clear word lists
-
-        for (const playerid in wordlists) {
-            if (playerid === userid) {continue} // deal with the current user later
-            htmlstring = `
-            <div class='namelabel'>${playerid}</div>
-            <div class='words'>${wordlists[playerid]}</div>`
-            wordlistdiv.innerHTML += htmlstring
-        }
-        
-        // append current user's words at end of list
-        htmlstring = `
-        <div class='namelabel'>Your words</div>
-        <div class='words'>${wordlists[userid]}</div>`
-        wordlistdiv.innerHTML += htmlstring
-    }
-
-
-    socket.on('newword', function(wordresponse) {
+    socket.on('update', function(wordresponse) {
+        console.log('update')
+        if (wordresponse == null) {return}
         console.log(wordresponse)
 
         let pool = document.getElementById('pool')
