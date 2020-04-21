@@ -3,6 +3,7 @@
 import git
 import json
 from flask import request
+from check_signature import is_valid_signature
 
 
 def update():

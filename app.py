@@ -4,7 +4,6 @@
 from flask import Flask, request, render_template, abort, redirect
 from flask_socketio import SocketIO, send, emit
 from update_server import update
-from check_signature import is_valid_signature
 from pirate_scrabble import toblocks, pickletter, getword
 import string, random
 
