@@ -1,20 +1,22 @@
-function renderwords(wordlists) {
+function renderwords(wordlists, scores) {
     userid = localStorage.getItem('userid')
     let wordlistdiv = document.getElementById('wordlist')
-    wordlistdiv.innerHTML = ''          // clear word lists
+    wordlistdiv.innerHTML = ''              // clear word lists
 
     for (const playerid in wordlists) {
         if (playerid === userid) {continue} // deal with the current user later
-        if (wordlists[playerid] === '') {continue}
+        if (wordlists[playerid] === '') {continue} // ignore player with no words
+        score = scores[playerid]
         htmlstring = `
-        <div class='namelabel'>${playerid}</div>
+        <div class='namelabel'>${playerid} ${score}</div>
         <div class='words'>${wordlists[playerid]}</div>`
         wordlistdiv.innerHTML += htmlstring
     }
 
     // append current user's words at end of list
+    score = scores[userid]
     htmlstring = `
-    <div class='namelabel'>Your words</div>
+    <div class='namelabel'>You ${score}</div>
     <div class='words'>${wordlists[userid]}</div>`
     wordlistdiv.innerHTML += htmlstring
 }
@@ -27,16 +29,15 @@ function update(wordresponse) {
     let pool = document.getElementById('pool')
     let message = document.getElementById('globalmessage')
 
-    pool.textContent = wordresponse[1]  // render letter pool
+    pool.textContent = wordresponse[0]  // render letter pool
 
-    renderwords(wordresponse[2])        // dictionary of word lists by player id
+    renderwords(wordresponse[1], wordresponse[2])        // dictionary of word lists by player id
 
     // display global message
     if (wordresponse[3] !== ''){
         message.textContent = wordresponse[3]
     }
 }
-
 
 document.addEventListener('DOMContentLoaded', (event) => {
 
@@ -64,14 +65,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     socket.on('update', update)
     
-    let messagetimeout
+    let disappeartimer
 
     socket.on('wordmess', function(mess) {
         console.log('word message: ' + mess)
         let message = document.getElementById('localmessage')
         message.textContent = mess
-        clearTimeout(messagetimeout)
-        messagetimeout = setTimeout(function() {
+        clearTimeout(disappeartimer)
+        disappeartimer = setTimeout(function() {
             message.textContent = ''
         }, 6000)
     })

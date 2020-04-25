@@ -10,6 +10,15 @@ pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
 pool_flipped = ''
 played_words = {}
+score_handicap = 2
+
+def score(words, handicap):
+    score = 0
+    for word in words:
+        lenw = len(word)
+        if lenw >= handicap:
+            score += lenw - handicap
+    return score
 
 
 def countstostring(letterpool):
@@ -113,6 +122,7 @@ if __name__ == '__main__':
         print(pool_flipped)
         for player, words in played_words.items():
             print(f'{player}:  {" ".join(words)}')
+            print(f'score: {score(words, score_handicap)}')
 
         word = input('enter word: ').upper()
         # clear_output()

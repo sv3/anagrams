@@ -4,7 +4,7 @@
 from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit
 from update_server import gitpullserver
-from pirate_scrabble import toblocks, pickletter, getword
+from anagrams import toblocks, pickletter, getword, score
 import string, random
 
 with open('../secret.txt') as f:
@@ -17,8 +17,9 @@ socketio = SocketIO(app)
 with open('twl06.txt') as twl06:
     dictionary = [word[:-1].upper() for word in twl06.readlines()[2:]]
 
-min_word_length = 3
 alphabet = string.ascii_uppercase
+min_word_length = 3
+score_handicap = 2  # subtract this from the score for each word
 
 
 def resetgame():
@@ -65,11 +66,7 @@ def adduser(userid):
     if userid not in played_words:
         played_words[userid] = []
 
-    blockwords = {}
-    for user in played_words.keys():
-        blockwords[user] = ' '.join( [toblocks(word) for word in played_words[user]] )
-    poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('update', ['', poolstring, blockwords, ''])
+    update(pool_flipped, played_words)
 
 
 def update(pool_flipped, played_words):
@@ -77,7 +74,8 @@ def update(pool_flipped, played_words):
     for user in played_words.keys():
         blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
     poolstring = '​'.join(toblocks(pool_flipped))
-    socketio.emit('update', ['', poolstring, blockwords, ''])
+    scores = {user:score(words, score_handicap) for user, words in played_words.items()}
+    socketio.emit('update', [poolstring, blockwords, scores, ''])
 
 
 @socketio.on('update')
