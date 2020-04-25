@@ -1,5 +1,6 @@
 import random
 import string
+from copy import deepcopy
 
 with open('twl06.txt') as twl06:
     dictionary = [word[:-1].upper() for word in twl06.readlines()[2:]]
@@ -65,7 +66,7 @@ def getword(target, letterpool, played_words, depth):
     target = target.upper()
     indent = ' ' * depth * 2
     print(indent + f'target: {target}  letterpool: {letterpool}  played_words: {played_words})')
-    played_words_new = played_words.copy()
+    played_words_new = deepcopy(played_words)
 
     for player, player_words in played_words.items():
         for donor in player_words:
@@ -89,6 +90,7 @@ def getword(target, letterpool, played_words, depth):
                 result, newpool, played_words_new = getword(remaining_letters, letterpool, played_words_new, depth+1)
                 if result:
                     return True, newpool, played_words_new
+
     print(indent + 'failed to find a word to steal for the letters:', target)
 
     poollist = list(letterpool)
