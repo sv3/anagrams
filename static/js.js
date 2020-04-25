@@ -8,16 +8,22 @@ function renderwords(wordlists, scores) {
         if (wordlists[playerid] === '') {continue} // ignore player with no words
         score = scores[playerid]
         htmlstring = `
-        <div class='namelabel'>${playerid} ${score}</div>
-        <div class='words'>${wordlists[playerid]}</div>`
+        <div class='namelabel'>${playerid}</div>
+        <div class='words'>
+            ${wordlists[playerid]}
+            <div class='score'>${score}</div>
+        </div>`
         wordlistdiv.innerHTML += htmlstring
     }
 
     // append current user's words at end of list
     score = scores[userid]
     htmlstring = `
-    <div class='namelabel'>You ${score}</div>
-    <div class='words'>${wordlists[userid]}</div>`
+    <div class='namelabel'>You</div>
+    <div class='words'>
+        ${wordlists[userid]}
+        <div class='score'>${score}</div>
+    </div>`
     wordlistdiv.innerHTML += htmlstring
 }
 
