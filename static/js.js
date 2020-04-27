@@ -17,11 +17,16 @@ function renderwords(wordlists, scores) {
     }
 
     // append current user's words at end of list
-    score = scores[userid]
+    let mywords = ''
+    let myscore = 0
+    if (userid in wordlists) {
+        mywords = wordlists[userid]
+        score = scores[userid]
+    }
     htmlstring = `
     <div class='namelabel'>You</div>
     <div class='words'>
-        ${wordlists[userid]}
+        ${mywords}
         <div class='score'>${score}</div>
     </div>`
     wordlistdiv.innerHTML += htmlstring

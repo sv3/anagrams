@@ -8,8 +8,9 @@
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" type="text/css" href="static/normalize.css" />
   <link rel="stylesheet" type="text/css" href="static/css.css" />
-  <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
   <script type="text/javascript" src="static/js.js?v=1"></script>
 </head>
 
@@ -22,7 +23,7 @@
     <div id="globalmessage">&nbsp;</div>
     <div id="localmessage">&nbsp;</div>
     <form id="wordform" method="post">
-        <input type="text" name="word" id="word" placeholder="type a word or press enter" autofocus autocapitalize=off autocomplete=off>
+        <input type="text" name="input" id="input" placeholder="type a word or press enter" autofocus autocapitalize=off autocomplete=off>
     </form>
   </div>
 </body>
