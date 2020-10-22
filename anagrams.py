@@ -5,15 +5,22 @@ from copy import deepcopy
 with open('twl06.txt') as twl06:
     dictionary = [word[:-1].upper() for word in twl06.readlines()[2:]]
 
-min_word_length = 3
 alphabet = string.ascii_uppercase
-pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
-pool_flipped = ''
-played_words = {}
+starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
+min_word_length = 3
 score_handicap = 2
 
-def score(words, handicap):
+
+def resetgame():
+    # use letter distribution from wikipedia article "Anagrams"
+    pool = starting_pool
+    pool_flipped = ''
+    played_words = {}
+    return pool, pool_flipped, played_words
+
+
+def calc_score(words, handicap):
     score = 0
     for word in words:
         lenw = len(word)
@@ -22,28 +29,18 @@ def score(words, handicap):
     return score
 
 
-def countstostring(letterpool):
-    letterlist = [alphabet[i]*num for i, num in enumerate(letterpool)]
-    return ''.join(letterlist)
-
-
 def toblocks(letterstring):
     letterlist = [block_alphabet[alphabet.find(l)] for l in letterstring]
     return ''.join(letterlist)
 
 
-def stringtocounts(letters):
-    letterpool = [0 for i in range(26)]
-    for l in letters.upper():
-        letterindex = alphabet.find(l)
-        letterpool[letterindex] += 1
-    return letterpool
-
-
-def pickletter(letterpool):
+def pickletter(letterpool, letterpool_flipped):
     poolstring = ''.join([alphabet[i]*num for i, num in enumerate(letterpool)])
     letter = random.choice(poolstring)
-    return letter
+    letterindex = alphabet.find(letter)
+    letterpool[letterindex] -= 1
+    letterpool_flipped = letterpool_flipped + letter
+    return letter, letterpool, letterpool_flipped
 
 
 def check_fully_contained(donor, target):
@@ -74,6 +71,9 @@ def getword(target, letterpool, played_words, depth):
             remaining_letters = check_fully_contained(donor, target)
             if not remaining_letters:
                 # try the next word in player_words
+                continue
+            elif donor in target:
+                print('You need to rearrange the letters in a word to steal it')
                 continue
             elif remaining_letters == '':
                 # found a word to steal
@@ -113,6 +113,7 @@ def getword(target, letterpool, played_words, depth):
 
 if __name__ == '__main__':
     # play in the terminal with an imaginary and passive opponent
+    pool, pool_flipped, played_words = resetgame()
     playerid = 'itsme'
     played_words[playerid] = []
     played_words['otherguy'] = ['CAT', 'HAT', 'FAT']
@@ -124,7 +125,7 @@ if __name__ == '__main__':
         print(pool_flipped)
         for player, words in played_words.items():
             print(f'{player}:  {" ".join(words)}')
-            print(f'score: {score(words, score_handicap)}')
+            print(f'score: {calc_score(words, score_handicap)}')
 
         word = input('enter word: ').upper()
         # clear_output()
@@ -133,11 +134,8 @@ if __name__ == '__main__':
 
         # is it a valid word?
         if len(word) == 0:
-            letter = pickletter(pool)
+            letter, pool, pool_flipped = pickletter(pool, pool_flipped)
             print('flipped over', letter)
-            letterindex = alphabet.find(letter)
-            pool[letterindex] -= 1
-            pool_flipped = pool_flipped + letter
         elif len(word) < min_word_length:
             print('That word is too short. Minimum length is', min_word_length)
         elif word not in dictionary:

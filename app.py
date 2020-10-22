@@ -4,7 +4,7 @@
 from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit
 from update_server import gitpullserver
-from anagrams import toblocks, pickletter, getword, score
+from anagrams import toblocks, pickletter, getword, calc_score, resetgame
 import string, random
 
 with open('../secret.txt') as f:
@@ -20,15 +20,6 @@ with open('twl06.txt') as twl06:
 alphabet = string.ascii_uppercase
 min_word_length = 3
 score_handicap = 2  # subtract this from the score for each word
-
-
-def resetgame():
-    pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
-    pool_flipped = ''
-    played_words = {}
-    return pool, pool_flipped, played_words
-
-pool, pool_flipped, played_words = resetgame()
 
 
 @app.route('/')
@@ -74,7 +65,7 @@ def update(pool_flipped, played_words):
     for user in played_words.keys():
         blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
     poolstring = '​'.join(toblocks(pool_flipped))
-    scores = {user:score(words, score_handicap) for user, words in played_words.items()}
+    scores = {user:calc_score(words, score_handicap) for user, words in played_words.items()}
     socketio.emit('update', [poolstring, blockwords, scores, ''])
 
 
@@ -95,11 +86,8 @@ def handle_message(userid, word):
 
     # Is the word length 0? Is it shorter than the minimum length? Is it a real word?
     if len(word) == 0:
-        letter = pickletter(pool)
-        letterindex = alphabet.find(letter)
-        pool[letterindex] -= 1
-        pool_flipped = pool_flipped + letter
-        message = 'Drew a new letter'
+        letter, pool, pool_flipped = pickletter(pool, pool_flipped)
+        message = 'A new letter has been flipped'
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
     elif word not in dictionary:
@@ -124,6 +112,7 @@ def handle_message(userid, word):
 
 
 if __name__ == '__main__':
+    pool, pool_flipped, played_words = resetgame()
     if app.env == 'development':
         socketio.run(app, host='0.0.0.0', port=80)
     else:

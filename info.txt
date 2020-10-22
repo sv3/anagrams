@@ -9,7 +9,7 @@ implement scoring: (letters in word - n)
 
 implement turns
 
-enable https
+get domain and enable https
 
 make systemd service on new server
 
