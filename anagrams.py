@@ -7,13 +7,13 @@ with open('twl06.txt') as twl06:
 
 alphabet = string.ascii_uppercase
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
-starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
 min_word_length = 3
 score_handicap = 2
 
 
 def resetgame():
     # use letter distribution from wikipedia article "Anagrams"
+    starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
     pool = starting_pool
     pool_flipped = ''
     played_words = {}
