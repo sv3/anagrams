@@ -5,13 +5,14 @@ make rulesets:
 - letters must be rearranged
 
 
-implement scoring: (letters in word - n)
-
 implement turns
 
-get domain and enable https
+enable https
 
 make systemd service on new server
+
+bugfix: need to /reset on app startup (name 'pool_flipped' is not defined)
+
 
 
 
@@ -19,6 +20,10 @@ NOTES:
 
 favicons generated here:
 https://favicon.io/favicon-generator/?t=%F0%9F%84%B0&ff=Leckerli+One&fs=110&fc=%23005&b=rounded&bc=%23FFDE34
+
+to run on Windows:
+set FLASK_APP=app.py
+flask run
 
 
 

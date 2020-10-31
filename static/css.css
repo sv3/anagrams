@@ -21,6 +21,18 @@ h1 {
     margin: 0.4rem 0;
     box-sizing: border-box;
 }
+::-webkit-input-placeholder { /* WebKit browsers */
+    text-transform: none;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    text-transform: none;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+    text-transform: none;
+}
+:-ms-input-placeholder { /* Internet Explorer 10+ */
+    text-transform: none;
+}
 
 
 #pool, .words{
