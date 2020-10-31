@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Anagrams</title>
+  <title>Anagram Land</title>
   <meta name=viewport content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -15,7 +15,7 @@
 </head>
 
 <body>
-  <h1>ANAGRAMS</h1>
+  <h1>ANAGRAM LAND</h1>
   <div>
     <div id="poollabel">Available Tiles:&ensp;</div>
     <div id="pool">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>
@@ -23,7 +23,7 @@
     <div id="globalmessage">&nbsp;</div>
     <div id="localmessage">&nbsp;</div>
     <form id="wordform" method="post">
-        <input type="text" name="input" id="input" placeholder="type a word or press enter" autofocus autocapitalize=off autocomplete=off>
+        <input type="text" name="input" id="input" placeholder="type a word to claim it or press enter to add a tile" autofocus autocapitalize=off autocomplete=off>
     </form>
   </div>
 </body>
