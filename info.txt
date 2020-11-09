@@ -1,5 +1,7 @@
 TO DO:
 
+security: only allow messages from ids sent by server
+
 make rulesets:
 
 - letters must be rearranged
@@ -7,11 +9,13 @@ make rulesets:
 
 implement turns
 
-enable https
-
 make systemd service on new server
 
 bugfix: need to /reset on app startup (name 'pool_flipped' is not defined)
+
+timer after final letter is flipped
+
+green light for activity
 
 
 
@@ -24,6 +28,17 @@ https://favicon.io/favicon-generator/?t=%F0%9F%84%B0&ff=Leckerli+One&fs=110&fc=%
 to run on Windows:
 set FLASK_APP=app.py
 flask run
+
+October 2020 Charges:
+ + $3       static IP
+ + $3.96    Micro INstance with burstable CPU Americas
+ = $6.96    Total
+
+could save money with dynamic IP and dynamic DNS
+
+after enabling SSL, had to add following to nginx.conf (inside "location /socket.io"):
+    proxy_set_header Origin "";
+    
 
 
 

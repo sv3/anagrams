@@ -1,21 +1,21 @@
 <!DOCTYPE HTML>
 <html>
 
-<head>
+<head data-room={{room}}>
   <title>Anagram Land</title>
   <meta name=viewport content="width=device-width, initial-scale=1">
-  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="site.webmanifest">
-  <link rel="stylesheet" type="text/css" href="static/normalize.css" />
-  <link rel="stylesheet" type="text/css" href="static/css.css" />
+  <link rel="stylesheet" type="text/css" href="/static/normalize.css" />
+  <link rel="stylesheet" type="text/css" href="/static/css.css" />
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
-  <script type="text/javascript" src="static/js.js?v=1"></script>
+  <script type="text/javascript" src="/static/js.js?v=1"></script>
 </head>
 
 <body>
-  <h1>ANAGRAM LAND</h1>
+    <h1>ANAGRAM LAND: {{room}}</h1>
   <div>
     <div id="poollabel">Available Tiles:&ensp;</div>
     <div id="pool">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>
