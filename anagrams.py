@@ -2,11 +2,15 @@ import random
 import string
 from copy import deepcopy
 
-with open('twl06.txt') as twl06:
-    dictionary = [word[:-1].upper() for word in twl06.readlines()[2:]]
+
+with open('blex.txt', encoding='utf-8') as dictfile:
+    dict_cz = [word[:-1].upper() for word in dictfile.readlines()[2:]]
+
+with open('twl06.txt', encoding='utf-8') as dictfile:
+    dict_en = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
 alphabet = string.ascii_uppercase
-block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
+# alphabet = 'AÁBCČDĎEÉĚFGHIÍJKLMNŇOÓPQRŘSŠTŤUÚŮVWXYÝZŽ'
 min_word_length = 3
 score_handicap = 2
 
@@ -14,6 +18,8 @@ score_handicap = 2
 def resetgame():
     # use letter distribution from wikipedia article "Anagrams"
     starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
+    #                  A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž
+    # starting_pool = [5,2,2,3,1,3,1,5,2,2,1,1,3,4,3,2,3,3,3,5,1,6,1,3,1,3,2,4,2,4,1,3,1,1,4,1,1,2,2,2,1]
     pool = starting_pool
     pool_flipped = ''
     played_words = {}
@@ -117,6 +123,7 @@ if __name__ == '__main__':
     playerid = 'itsme'
     played_words[playerid] = []
     played_words['otherguy'] = ['CAT', 'HAT', 'FAT']
+    dictionary = dict_en
 
     while True:
 
