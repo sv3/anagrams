@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Anagrams</title>
+  <title>Anagram Land</title>
   <meta name=viewport content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" sizes="180x180" href="static/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32x32.png">
@@ -12,11 +12,28 @@
 </head>
 
 <body>
-  <h1>ANAGRAMS</h1>
+  <h1>ANAGRAM LAND</h1>
   <div id="info">
-    <p>This is a single-player prototype of a multiplayer game.</p>
-    <p>Press ENTER to flip over a tile and add it to the pool. When you spot a a word, type it and press enter to claim it.</p>
-    <p>You can also steal words: type a new word that contains all of the letters from a word or words you want to steal, and optionally letters from the pool as well.</p>
+    <p>This is a multiplayer online game about making and stealing words.</p>
+    <p>When you're playing, you can press enter to put a new tile in the communal pool. Any time you spot a word, you can type it and press enter to claim it.</p>
+    <p>You can also steal words! For example, if your opponent has the word
+        <span class="inline-tiles">🄲​🄰​🅃</span>
+        , and the letter 
+        <span class="inline-tiles">🄺</span> 
+        is available in the pool, you can type 
+        <span class="inline-tiles">🅃​🄰​🄲​🄺</span>
+        to take all of those letters and combine them into your new word.</p>
+    <p>However, you can only steal a word if you rearrange its letters or add at least one letter in the middle of the word. Adding letters to the beginning or the end won't cut it! For example, you can't make 
+        <span class="inline-tiles">🄲​🄰​🅃​🅂</span>
+        out of
+        <span class="inline-tiles">🄲​🄰​🅃</span>
+        and
+        <span class="inline-tiles">🅂</span> 
+        . That would be too easy!
+    </p>
+    <p>Oh and by the way, you can "steal" your own words too. It's a good way to stop other people from stealing them.
+    </p>
+
     <button id="startbutton" onclick="window.location.href = '/';">Play</button>
   </div>
 </body>
