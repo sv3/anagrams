@@ -23,7 +23,7 @@ def resetgame():
     pool = starting_pool
     pool_flipped = ''
     played_words = {}
-    return pool, pool_flipped, played_words
+    return {'pool':pool, 'pool_flipped':pool_flipped, 'played_words':played_words}
 
 
 def calc_score(words, handicap):
@@ -33,11 +33,6 @@ def calc_score(words, handicap):
         if lenw >= handicap:
             score += lenw - handicap
     return score
-
-
-def toblocks(letterstring):
-    letterlist = [block_alphabet[alphabet.find(l)] for l in letterstring]
-    return ''.join(letterlist)
 
 
 def pickletter(letterpool, letterpool_flipped):

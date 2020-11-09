@@ -17,12 +17,6 @@ timer after final letter is flipped
 
 green light for activity
 
-fix webmanifest route
-
-
-DONE:
-
-enable https
 
 
 

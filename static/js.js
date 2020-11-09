@@ -21,13 +21,13 @@ function renderwords(wordlists, scores) {
     let myscore = 0
     if (userid in wordlists) {
         mywords = wordlists[userid]
-        score = scores[userid]
+        myscore = scores[userid]
     }
     htmlstring = `
     <div class='namelabel'>You</div>
     <div class='words'>
         ${mywords}
-        <div class='score'>${score}</div>
+        <div class='score'>${myscore}</div>
     </div>`
     wordlistdiv.innerHTML += htmlstring
 }
@@ -51,6 +51,8 @@ function update(wordresponse) {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
+    let roomname = document.head.getAttribute('data-room')
+    console.log(roomname)
 
     let socket = io()
 
@@ -64,7 +66,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } else {
             socket.emit('adduser', localStorage.getItem('userid'))
         }
-        socket.emit('update')
+        socket.emit('update', roomname)
     })
 
 
@@ -93,7 +95,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     form.addEventListener('submit', function(event) {
         let message = form[0].value
-        socket.emit('submit', localStorage.getItem('userid'), message)
+        socket.emit('submit', roomname, localStorage.getItem('userid'), message)
         form[0].value = ''
         event.preventDefault()
         return false
