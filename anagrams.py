@@ -9,17 +9,18 @@ with open('dictionaries/blex.txt', encoding='utf-8') as dictfile:
 with open('dictionaries/twl06.txt', encoding='utf-8') as dictfile:
     dict_en = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
-alphabet = string.ascii_uppercase
-# alphabet = 'AÁBCČDĎEÉĚFGHIÍJKLMNŇOÓPQRŘSŠTŤUÚŮVWXYÝZŽ'
 min_word_length = 3
 score_handicap = 2
 
 
-def resetgame():
-    # use letter distribution from wikipedia article "Anagrams"
-    starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
-    #                  A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž
-    # starting_pool = [5,2,2,3,1,3,1,5,2,2,1,1,3,4,3,2,3,3,3,5,1,6,1,3,1,3,2,4,2,4,1,3,1,1,4,1,1,2,2,2,1]
+def resetgame(language='en'):
+    if language == 'en':
+        # use letter distribution from wikipedia article "Anagrams"
+        starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
+    elif language == 'cz':
+        #                A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž
+        starting_pool = [5,2,2,3,1,3,1,5,2,2,1,1,3,4,3,2,3,3,3,5,1,6,1,3,1,3,2,4,2,4,1,3,1,1,4,1,1,2,2,2,1]
+        starting_pool = list(map(lambda x: 2*x, starting_pool))
     pool = starting_pool
     pool_flipped = ''
     played_words = {}
@@ -35,7 +36,11 @@ def calc_score(words, handicap):
     return score
 
 
-def pickletter(letterpool, letterpool_flipped):
+def pickletter(letterpool, letterpool_flipped, language='en'):
+    if language == 'en':
+        alphabet = string.ascii_uppercase
+    elif language == 'cz':
+        alphabet = 'AÁBCČDĎEÉĚFGHIÍJKLMNŇOÓPQRŘSŠTŤUÚŮVWXYÝZŽ'
     poolstring = ''.join([alphabet[i]*num for i, num in enumerate(letterpool)])
     letter = random.choice(poolstring)
     letterindex = alphabet.find(letter)
@@ -114,18 +119,23 @@ def getword(target, letterpool, played_words, depth):
 
 if __name__ == '__main__':
     # play in the terminal with an imaginary and passive opponent
-    pool, pool_flipped, played_words = resetgame()
+    lang = 'cz'
+    state = resetgame(language=lang)
+    pool, pool_flipped, played_words = state['pool'], state['pool_flipped'], state['played_words']
     playerid = 'itsme'
     played_words[playerid] = []
     played_words['otherguy'] = ['CAT', 'HAT', 'FAT']
-    dictionary = dict_en
+    if lang == 'cz':
+        dictionary = dict_cz
+    else:
+        dictionary = dict_en
 
     while True:
 
         print()
         print('tiles in pool: ', end='')
         print(pool_flipped)
-        for player, words in played_words.items():
+        for player, words in sorted(played_words.items())[::-1]:
             print(f'{player}:  {" ".join(words)}')
             print(f'score: {calc_score(words, score_handicap)}')
 
@@ -136,7 +146,7 @@ if __name__ == '__main__':
 
         # is it a valid word?
         if len(word) == 0:
-            letter, pool, pool_flipped = pickletter(pool, pool_flipped)
+            letter, pool, pool_flipped = pickletter(pool, pool_flipped, language=lang)
             print('flipped over', letter)
         elif len(word) < min_word_length:
             print('That word is too short. Minimum length is', min_word_length)

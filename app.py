@@ -28,7 +28,6 @@ block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾�
 # block_alphabet = 'AÁBCČDĎEÉĚFGHIÍJKLMNŇOÓPQRŘSŠTŤUÚŮVWXYÝZŽ'
 
 rooms = {}
-_pool, _pool_flipped, _played_words = resetgame()
 rooms['test'] = resetgame()
 rooms['test']['pool_filpped'] = 'TEST'
 users = []
@@ -47,18 +46,27 @@ def tolobby():
 def info():
     return app.send_static_file('info.html')
 
+
 @app.route('/room/<room>')
 def room(room):
     if room in rooms:
-        poolletters = toblocks(rooms[room]['pool_flipped'])
+        if room == 'cz':
+            poolletters = rooms[room]['pool_flipped']
+        else:
+            poolletters = toblocks(rooms[room]['pool_flipped'])
         return render_template('index.html', room=room, poolletters=poolletters)
     else:
         return redirect('/room/' + room + '/reset')
 
+
 @app.route('/room/<room>/reset')
 def reset(room):
     global rooms
-    rooms[room] = resetgame()
+    if room == 'cz':
+        rooms[room] = resetgame(language='cz')
+    else:
+        rooms[room] = resetgame()
+        print('reset room', room, rooms[room])
     return redirect('/room/' + room)
 
 
@@ -80,14 +88,18 @@ def adduser(userid):
         # users[userid] = []
         users.append(userid)
 
-    # update(pool_flipped, played_words)
-
 
 def update(room, pool_flipped, played_words):
-    blockwords = {}
-    for user in played_words.keys():
-        blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
-    poolstring = '​'.join(toblocks(pool_flipped))
+    if room == 'cz':
+        blockwords = {}
+        for user in played_words.keys():
+            blockwords[user] = ' '.join([word for word in played_words[user]])
+        poolstring = '​'.join(pool_flipped)
+    else:
+        blockwords = {}
+        for user in played_words.keys():
+            blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
+        poolstring = '​'.join(toblocks(pool_flipped))
     scores = {user:calc_score(words, score_handicap) for user, words in played_words.items()}
     socketio.emit('update', [poolstring, blockwords, scores, ''], room=room)
 
@@ -97,13 +109,20 @@ def updateclient(roomname):
     print('updating client for room:',roomname)
     join_room(roomname)
     room = rooms[roomname]
-    update(roomname, room[pool_flipped], room[played_words])
+    update(roomname, room['pool_flipped'], room['played_words'])
 
 
 @socketio.on('submit')
 def handle_message(roomname, userid, word):
     global rooms
+    if roomname == 'cz':
+        lang = 'cz'
+        dictionary = dict_cz
+    else:
+        lang = 'en'
+        dictionary = dict_en
     room = rooms[roomname]
+
     pool, pool_flipped, played_words = room['pool'], room['pool_flipped'], room['played_words']
 
     message = ''
@@ -113,11 +132,11 @@ def handle_message(roomname, userid, word):
 
     # Is the word length 0? Is it shorter than the minimum length? Is it a real word?
     if len(word) == 0:
-        letter, pool, pool_flipped = pickletter(pool, pool_flipped)
+        letter, pool, pool_flipped = pickletter(pool, pool_flipped, language=lang)
         message = 'A new letter has been flipped'
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
-    elif word not in dict_en:
+    elif word not in dictionary:
         emit('wordmess', f'{word} is not even a word ⚆_⚆')
     else:
         # recursively try to make the word from a combination of existing words and letters
@@ -141,7 +160,6 @@ def handle_message(roomname, userid, word):
 
 
 if __name__ == '__main__':
-    pool, pool_flipped, played_words = resetgame()
     if app.env == 'development':
         socketio.run(app, host='0.0.0.0', port=80)
     else:
