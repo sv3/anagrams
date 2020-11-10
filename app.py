@@ -6,6 +6,7 @@ from flask_socketio import SocketIO, send, emit, join_room
 from update_server import gitpullserver
 from anagrams import pickletter, getword, calc_score, resetgame
 import string, random
+import re
 
 with open('../secret.txt') as f:
     w_secret = f.read()[:-1]
@@ -127,6 +128,7 @@ def handle_message(roomname, userid, word):
 
     message = ''
     word = word.upper()
+    word = re.sub(r'\s+', '', word)
     print(userid, 'submitted', word)
     result = False
 
