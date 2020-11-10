@@ -3,10 +3,10 @@ import string
 from copy import deepcopy
 
 
-with open('blex.txt', encoding='utf-8') as dictfile:
+with open('dictionaries/blex.txt', encoding='utf-8') as dictfile:
     dict_cz = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
-with open('twl06.txt', encoding='utf-8') as dictfile:
+with open('dictionaries/twl06.txt', encoding='utf-8') as dictfile:
     dict_en = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
 alphabet = string.ascii_uppercase

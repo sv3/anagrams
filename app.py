@@ -14,10 +14,10 @@ app = Flask(__name__)
 app.config['SECRET KEY'] = w_secret
 socketio = SocketIO(app)
 
-with open('blex.txt', encoding='utf-8') as dictfile:
+with open('dictionaries/blex.txt', encoding='utf-8') as dictfile:
     dict_cz = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
-with open('twl06.txt', encoding='utf-8') as dictfile:
+with open('dictionaries/twl06.txt', encoding='utf-8') as dictfile:
     dict_en = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
 ### Room parameters
