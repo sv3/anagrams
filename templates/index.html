@@ -15,7 +15,11 @@
 </head>
 
 <body>
-    <h1>ANAGRAM LAND: {{room}}</h1>
+    <div class="heading">
+        <h1>ANAGRAM LAND</h1>
+        <h2>{{room}}</h1>
+    </div>
+    <div style="clear: both;"></div>
   <div>
     <div id="poollabel">Available Tiles:&ensp;</div>
     <div id="pool">{{ poolletters|join('&NegativeMediumSpace;')|safe }}</div>

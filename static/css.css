@@ -5,9 +5,19 @@ body {
     font-size: 100%;
 }
 
+.heading{
+    display: flex;
+    margin: 10px 0;
+}
+
 h1 {
-    margin: 0.4em auto;
+    margin: 0 auto 0 0;
     font-size: 1.6em;
+}
+
+h2 {
+    margin: auto 0 auto auto;
+    font-size: 1.3em;
 }
 
 p {
@@ -57,7 +67,7 @@ p {
     margin-bottom: 0.4rem;
     letter-spacing: 0.1em;
     border-radius: 0.1em;
-    box-shadow: inset 0 0 3px 1px rgb(0 0 0 / 7%);
+    box-shadow: inset 0 0 3px 1px rgb(94 68 18 / 0.1);
     }
 
 #yourwords{
@@ -105,7 +115,6 @@ p {
 form#wordform {
     width: 100%;
 }
-
 
 .faded {
     display: inline;
