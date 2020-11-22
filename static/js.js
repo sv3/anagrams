@@ -24,8 +24,11 @@ function renderwords(wordlists, scores) {
         myscore = scores[userid]
     }
     htmlstring = `
-    <div class='namelabel'>You</div>
-    <div class='words'>
+    <div class='namelabel'>
+        You 
+        <div class='faded'>(${userid})</div>
+    </div>
+    <div class='words' id='yourwords'>
         ${mywords}
         <div class='score'>${myscore}</div>
     </div>`
