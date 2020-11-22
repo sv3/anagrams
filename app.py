@@ -80,13 +80,11 @@ def updateserver():
 @socketio.on('adduser')
 def adduser(userid):
     if not userid:
-        lettnum = string.ascii_letters + string.digits
-        userid = ''.join( random.choice(lettnum) for i in range(10) )
+        userid = ''.join( random.choice(string.ascii_lowercase) for i in range(7) )
         print('sending back newly generated id: ' + userid)
         emit('userid', userid)
 
     if userid not in users:
-        # users[userid] = []
         users.append(userid)
 
 

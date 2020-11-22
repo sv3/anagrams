@@ -9,10 +9,6 @@ make rulesets:
 
 implement turns
 
-make systemd service on new server
-
-bugfix: need to /reset on app startup (name 'pool_flipped' is not defined)
-
 timer after final letter is flipped
 
 green light for activity
