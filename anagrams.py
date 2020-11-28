@@ -13,11 +13,11 @@ min_word_length = 3
 score_handicap = 2
 
 
-def resetgame(language='en'):
-    if language == 'en':
+def resetgame(meta):
+    if meta['lang'] == 'en':
         # use letter distribution from wikipedia article "Anagrams"
         starting_pool = [13,5,6,7,24,6,7,6,12,2,2,8,8,11,15,4,2,12,10,10,6,2,4,2,2,2]
-    elif language == 'cz':
+    if meta['lang'] == 'cz':
         #                A,Á,B,C,Č,D,Ď,E,É,Ě,F,G,H,I,Í,J,K,L,M,N,Ň,O,Ó,P,Q,R,Ř,S,Š,T,Ť,U,Ú,Ů,V,W,X,Y,Ý,Z,Ž
         starting_pool = [5,2,2,3,1,3,1,5,2,2,1,1,3,4,3,2,3,3,3,5,1,6,1,3,1,3,2,4,2,4,1,3,1,1,4,1,1,2,2,2,1]
         starting_pool = list(map(lambda x: 2*x, starting_pool))
@@ -120,7 +120,7 @@ def getword(target, letterpool, played_words, depth):
 if __name__ == '__main__':
     # play in the terminal with an imaginary and passive opponent
     lang = 'cz'
-    state = resetgame(language=lang)
+    state = resetgame({'lang':lang})
     pool, pool_flipped, played_words = state['pool'], state['pool_flipped'], state['played_words']
     playerid = 'itsme'
     played_words[playerid] = []
