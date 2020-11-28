@@ -3,11 +3,15 @@ TO DO:
 security: only allow messages from ids sent by server
 
 make rulesets:
-
 - letters must be rearranged
 
+name assignment - click your own name (tooltip?)
+
+improved feedback messages
 
 implement turns
+
+implement automatic letter adding
 
 timer after final letter is flipped
 
