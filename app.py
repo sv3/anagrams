@@ -61,12 +61,7 @@ def info():
 @app.route('/room/<roomname>')
 def room(roomname):
     if roomname in rooms and roomname in rooms_meta:
-        if rooms_meta[roomname]['lang'] == 'cz':
-            # special case: don't use block characters in Czech
-            poolletters = rooms[roomname]['pool_flipped']
-        else:
-            poolletters = toblocks(rooms[roomname]['pool_flipped'])
-        return render_template('index.html', room=roomname, poolletters=poolletters)
+        return render_template('index.html', room=roomname, poolletters='')
     else:
         return redirect('/room/' + roomname + '/reset')
 
@@ -109,10 +104,10 @@ def adduser(userid):
 def update(roomname, pool_flipped, played_words):
     score_handicap = rooms_meta[roomname]['score_handicap']
     blockwords = {}
-    poolstring = '​'.join(pool_flipped)
     if rooms_meta[roomname]['lang'] == 'cz':
         for user in played_words.keys():
             blockwords[user] = ' '.join([word for words in played_words[user]])
+        poolstring = '​'.join(pool_flipped)
     else:
         for user in played_words.keys():
             blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
