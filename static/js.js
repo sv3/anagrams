@@ -26,13 +26,19 @@ function renderwords(wordlists, scores) {
     htmlstring = `
     <div class='namelabel'>
         You 
-        <div class='faded'>(${userid})</div>
+        <div id='myname'>(${userid})</div>
     </div>
-    <div class='words' id='yourwords'>
+    <div class='words' id='mywords'>
         ${mywords}
         <div class='score'>${myscore}</div>
     </div>`
     wordlistdiv.innerHTML += htmlstring
+
+    let myname = document.getElementById('myname')
+    myname.addEventListener('click', function() {
+        alert('🚨🚧under construction🚧🚨')
+        return false
+    } , false)
 }
 
 function update(wordresponse) {
@@ -52,6 +58,7 @@ function update(wordresponse) {
         message.textContent = wordresponse[3]
     }
 }
+
 
 document.addEventListener('DOMContentLoaded', (event) => {
     let roomname = document.head.getAttribute('data-room')
