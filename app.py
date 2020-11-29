@@ -7,6 +7,7 @@ from update_server import gitpullserver
 from anagrams import pickletter, getword, calc_score, resetgame
 import string, random
 import re
+import json
 
 with open('../secret.txt') as f:
     w_secret = f.read()[:-1]
@@ -15,23 +16,33 @@ app = Flask(__name__)
 app.config['SECRET KEY'] = w_secret
 socketio = SocketIO(app)
 
+dictionaries = {}
+
 with open('dictionaries/blex.txt', encoding='utf-8') as dictfile:
-    dict_cz = [word[:-1].upper() for word in dictfile.readlines()[2:]]
+    dictionaries['cz'] = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
 with open('dictionaries/twl06.txt', encoding='utf-8') as dictfile:
-    dict_en = [word[:-1].upper() for word in dictfile.readlines()[2:]]
+    dictionaries['en'] = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
-### Room parameters
 alphabet = string.ascii_uppercase
-min_word_length = 3
-score_handicap = 2  # subtract this from the score for each word
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
-# block_alphabet = 'AÁBCČDĎEÉĚFGHIÍJKLMNŇOÓPQRŘSŠTŤUÚŮVWXYÝZŽ'
 
 rooms = {}
-rooms['test'] = resetgame()
-rooms['test']['pool_filpped'] = 'TEST'
+rooms_meta = {}
+meta_default = {
+        'lang':'en',
+        'min_word_length':3,
+        'score_handicap':2 # subtract this from the score for each word
+        }
+
+rooms_meta['test'] = meta_default.copy()
+rooms['test'] = resetgame(rooms_meta['test'])
+rooms['test']['pool_flipped'] = 'TEST'
+rooms_meta['cz'] = meta_default.copy()
+rooms_meta['cz']['lang'] = 'cz'
+
 users = []
+
 
 def toblocks(letterstring):
     letterlist = [block_alphabet[alphabet.find(l)] for l in letterstring]
@@ -48,33 +59,36 @@ def info():
     return app.send_static_file('info.html')
 
 
-@app.route('/room/<room>')
-def room(room):
-    if room in rooms:
-        if room == 'cz':
-            poolletters = rooms[room]['pool_flipped']
-        else:
-            poolletters = toblocks(rooms[room]['pool_flipped'])
-        return render_template('index.html', room=room, poolletters=poolletters)
+@app.route('/room/<roomname>')
+def room(roomname):
+    if roomname in rooms and roomname in rooms_meta:
+        return render_template('index.html', room=roomname, poolletters='')
     else:
-        return redirect('/room/' + room + '/reset')
+        return redirect('/room/' + roomname + '/reset')
 
 
-@app.route('/room/<room>/reset')
-def reset(room):
+@app.route('/room/<roomname>/reset')
+def reset(roomname):
     global rooms
-    if room == 'cz':
-        rooms[room] = resetgame(language='cz')
-    else:
-        rooms[room] = resetgame()
-        print('reset room', room, rooms[room])
-    return redirect('/room/' + room)
+    global rooms_meta
+
+    # for new rooms, set default parameters
+    rooms_meta.setdefault(roomname, meta_default)
+
+    meta = rooms_meta[roomname]
+    rooms[roomname] = resetgame(meta)
+    print('reset room', roomname, rooms[roomname])
+    return redirect('/room/' + roomname)
 
 
-# endpoint that pulls from github and restarts the server
-@app.route('/update_server', methods=['POST'])
-def updateserver():
-    return gitpullserver(w_secret)
+@app.route('/debug')
+def debug():
+    # if app.env != 'development':
+    #     return redirect('/')
+    # elif app.env == 'development':
+    debugvars = ('rooms', 'rooms_meta', 'users')
+    vardict = { key:globals()[key] for key in debugvars }
+    return(json.dumps(vardict))
 
 
 @socketio.on('adduser')
@@ -88,19 +102,20 @@ def adduser(userid):
         users.append(userid)
 
 
-def update(room, pool_flipped, played_words):
-    if room == 'cz':
-        blockwords = {}
+def update(roomname, pool_flipped, played_words):
+    score_handicap = rooms_meta[roomname]['score_handicap']
+    blockwords = {}
+    if rooms_meta[roomname]['lang'] == 'cz':
         for user in played_words.keys():
-            blockwords[user] = ' '.join([word for word in played_words[user]])
+            blockwords[user] = ' '.join([word for words in played_words[user]])
         poolstring = '​'.join(pool_flipped)
     else:
-        blockwords = {}
         for user in played_words.keys():
             blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
         poolstring = '​'.join(toblocks(pool_flipped))
+
     scores = {user:calc_score(words, score_handicap) for user, words in played_words.items()}
-    socketio.emit('update', [poolstring, blockwords, scores, ''], room=room)
+    socketio.emit('update', [poolstring, blockwords, scores, ''], room=roomname)
 
 
 @socketio.on('update')
@@ -112,14 +127,12 @@ def updateclient(roomname):
 
 
 @socketio.on('submit')
-def handle_message(roomname, userid, word):
+def submit(roomname, userid, word):
     global rooms
-    if roomname == 'cz':
-        lang = 'cz'
-        dictionary = dict_cz
-    else:
-        lang = 'en'
-        dictionary = dict_en
+    room_meta = rooms_meta[roomname]
+    lang = room_meta['lang']
+    min_word_length = room_meta['min_word_length']
+    dictionary = dictionaries[lang]
     room = rooms[roomname]
 
     pool, pool_flipped, played_words = room['pool'], room['pool_flipped'], room['played_words']
@@ -157,6 +170,12 @@ def handle_message(roomname, userid, word):
     
     rooms[roomname] = {'pool':pool, 'pool_flipped':pool_flipped, 'played_words':played_words}
     update(roomname, pool_flipped, played_words)
+
+
+# endpoint that pulls from github and restarts the server
+@app.route('/update_server', methods=['POST'])
+def updateserver():
+    return gitpullserver(w_secret)
 
 
 if __name__ == '__main__':
