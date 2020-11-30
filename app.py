@@ -102,6 +102,10 @@ def adduser(userid):
         users.append(userid)
 
 
+@socketio.on('addname')
+def addname(userid, username):
+    print(userid, username)
+
 def update(roomname, pool_flipped, played_words):
     score_handicap = rooms_meta[roomname]['score_handicap']
     blockwords = {}

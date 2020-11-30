@@ -34,11 +34,6 @@ function renderwords(wordlists, scores) {
     </div>`
     wordlistdiv.innerHTML += htmlstring
 
-    let myname = document.getElementById('myname')
-    myname.addEventListener('click', function() {
-        alert('🚨🚧under construction🚧🚨')
-        return false
-    } , false)
 }
 
 function update(wordresponse) {
@@ -101,8 +96,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     })
 
 
+    // submit word to claim
     let form = document.getElementById('wordform')
-
     form.addEventListener('submit', function(event) {
         let message = form[0].value
         socket.emit('submit', roomname, localStorage.getItem('userid'), message)
@@ -110,4 +105,39 @@ document.addEventListener('DOMContentLoaded', (event) => {
         event.preventDefault()
         return false
     })
+
+    let wordlist = document.getElementById('wordlist')
+    wordlist.addEventListener('click', function(e) {
+        if (e.target.id == 'myname') {
+            let oldname = e.target.textContent.slice(1,-1)
+            formhtml = `(
+            <form id="nameform" method="post">
+                <span id="hide"></span><input type="text" name="nameinput" id="nameinput" autofocus autocapitalize=off autocomplete=off spellcheck=false>
+            </form>)`
+            e.target.innerHTML = formhtml
+            //console.log(e.target.childNodes[0])
+            let nameinput = document.getElementById('nameinput')
+            nameinput.value = oldname
+            nameinput.focus()
+            nameinput.select()
+            
+            let hide = document.getElementById('hide');
+            resize();
+            nameinput.addEventListener("input", resize);
+
+            function resize() {
+              hide.textContent = nameinput.value;
+              nameinput.style.width = hide.offsetWidth + "px";
+            }
+            
+            e.target.addEventListener('submit', function(event) {
+                let newname = event.target[0].value
+                socket.emit('addname', localStorage.getItem('userid'), newname)
+                e.target.innerHTML = "(" + newname + ")"
+                event.preventDefault()
+                return false
+            })
+        }
+        return false
+    } , false)
 })
