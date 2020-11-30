@@ -107,36 +107,40 @@ document.addEventListener('DOMContentLoaded', (event) => {
     })
 
     let wordlist = document.getElementById('wordlist')
+
     wordlist.addEventListener('click', function(e) {
         if (e.target.id == 'myname') {
             let oldname = e.target.textContent.slice(1,-1)
-            formhtml = `(
-            <form id="nameform" method="post">
-                <span id="hide"></span><input type="text" name="nameinput" id="nameinput" autofocus autocapitalize=off autocomplete=off spellcheck=false>
-            </form>)`
+            formhtml = `(<form id="nameform" method="post"><span id="hide"></span><input type="text" name="nameinput" id="nameinput" autofocus autocapitalize=off autocomplete=off spellcheck=false></form>)`
             e.target.innerHTML = formhtml
-            //console.log(e.target.childNodes[0])
+
             let nameinput = document.getElementById('nameinput')
             nameinput.value = oldname
             nameinput.focus()
             nameinput.select()
-            
-            let hide = document.getElementById('hide');
-            resize();
-            nameinput.addEventListener("input", resize);
 
             function resize() {
               hide.textContent = nameinput.value;
               nameinput.style.width = hide.offsetWidth + "px";
             }
+
+            let hide = document.getElementById('hide');
+            resize();
+            nameinput.addEventListener("input", resize);
             
-            e.target.addEventListener('submit', function(event) {
-                let newname = event.target[0].value
+            function submitname(event) {
+                e.target.removeEventListener('submit', submitname)
+                nameinput.removeEventListener('focusout', submitname)
+                let newname = nameinput.value
                 socket.emit('addname', localStorage.getItem('userid'), newname)
                 e.target.innerHTML = "(" + newname + ")"
                 event.preventDefault()
+
                 return false
-            })
+            }
+
+            e.target.addEventListener('submit', submitname)
+            nameinput.addEventListener('focusout', submitname)
         }
         return false
     } , false)
