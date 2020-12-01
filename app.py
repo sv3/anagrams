@@ -41,7 +41,7 @@ rooms['test']['pool_flipped'] = 'TEST'
 rooms_meta['cz'] = meta_default.copy()
 rooms_meta['cz']['lang'] = 'cz'
 
-users = []
+users = {}
 
 
 def toblocks(letterstring):
@@ -92,34 +92,37 @@ def debug():
 
 
 @socketio.on('adduser')
-def adduser(userid):
+def adduser(userid, username):
+    print(userid, username)
     if not userid:
         userid = ''.join( random.choice(string.ascii_lowercase) for i in range(7) )
+        users[userid] = userid
         print('sending back newly generated id: ' + userid)
         emit('userid', userid)
 
-    if userid not in users:
-        users.append(userid)
+    # just an id received: save it in users
+    if not username:
+        if userid not in users:
+            users[userid] = userid
+    else:
+        users[userid] = username
 
-
-@socketio.on('addname')
-def addname(userid, username):
-    print(userid, username)
 
 def update(roomname, pool_flipped, played_words):
     score_handicap = rooms_meta[roomname]['score_handicap']
     blockwords = {}
     if rooms_meta[roomname]['lang'] == 'cz':
         for user in played_words.keys():
-            blockwords[user] = ' '.join([word for words in played_words[user]])
+            blockwords[user] = ' '.join([word for word in played_words[user]])
         poolstring = '​'.join(pool_flipped)
     else:
         for user in played_words.keys():
             blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
         poolstring = '​'.join(toblocks(pool_flipped))
 
-    scores = {user:calc_score(words, score_handicap) for user, words in played_words.items()}
-    socketio.emit('update', [poolstring, blockwords, scores, ''], room=roomname)
+    scores = {userid:calc_score(words, score_handicap) for userid, words in played_words.items()}
+    names = {userid:users[userid] for userid in played_words}
+    socketio.emit('update', [poolstring, blockwords, scores, names, ''], room=roomname)
 
 
 @socketio.on('update')

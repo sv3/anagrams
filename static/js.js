@@ -1,5 +1,6 @@
-function renderwords(wordlists, scores) {
+function renderwords(wordlists, scores, names) {
     userid = localStorage.getItem('userid')
+    username = localStorage.getItem('username')
     let wordlistdiv = document.getElementById('wordlist')
     wordlistdiv.innerHTML = ''              // clear word lists
 
@@ -8,7 +9,7 @@ function renderwords(wordlists, scores) {
         if (wordlists[playerid] === '') {continue} // ignore player with no words
         score = scores[playerid]
         htmlstring = `
-        <div class='namelabel'>${playerid}</div>
+        <div class='namelabel'>${names[playerid]}</div>
         <div class='words'>
             ${wordlists[playerid]}
             <div class='score'>${score}</div>
@@ -26,7 +27,7 @@ function renderwords(wordlists, scores) {
     htmlstring = `
     <div class='namelabel'>
         You 
-        <div id='myname'>(${userid})</div>
+        <div id='myname' title='click to change name'>(${username})</div>
     </div>
     <div class='words' id='mywords'>
         ${mywords}
@@ -37,7 +38,6 @@ function renderwords(wordlists, scores) {
 }
 
 function update(wordresponse) {
-    console.log('update')
     if (wordresponse == null) {return}
     console.log(wordresponse)
 
@@ -46,10 +46,10 @@ function update(wordresponse) {
 
     pool.textContent = wordresponse[0]  // render letter pool
 
-    renderwords(wordresponse[1], wordresponse[2])        // dictionary of word lists by player id
+    renderwords(wordresponse[1], wordresponse[2], wordresponse[3]) // words, scores, names
 
-    // display global message
-    if (wordresponse[3] !== ''){
+    // display room message
+    if (wordresponse[4] !== ''){
         message.textContent = wordresponse[3]
     }
 }
@@ -63,14 +63,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     socket.on('connect', function() {
         console.log('connected socket')
+
         // if a user id is not stored, request one from the server
         if (localStorage.getItem('userid') === null) {
             console.log('requesting new id')
-            socket.emit('adduser', '')
+            socket.emit('adduser', '', '')
         // if a user id is stored, report it to the server to join game
         } else {
-            socket.emit('adduser', localStorage.getItem('userid'))
+            socket.emit('adduser', localStorage.getItem('userid'), '')
         }
+
         socket.emit('update', roomname)
     })
 
@@ -79,6 +81,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         // got a message containing a new id for this session
         console.log('got new id: ' + id)
         localStorage.setItem('userid', id)
+        localStorage.setItem('username', id)
     })
 
     socket.on('update', update)
@@ -99,15 +102,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
     // submit word to claim
     let form = document.getElementById('wordform')
     form.addEventListener('submit', function(event) {
-        let message = form[0].value
-        socket.emit('submit', roomname, localStorage.getItem('userid'), message)
+        let word = form[0].value
+        socket.emit('submit', roomname, localStorage.getItem('userid'), word)
         form[0].value = ''
         event.preventDefault()
         return false
     })
 
-    let wordlist = document.getElementById('wordlist')
 
+    // change user name
+    let wordlist = document.getElementById('wordlist')
     wordlist.addEventListener('click', function(e) {
         if (e.target.id == 'myname') {
             let oldname = e.target.textContent.slice(1,-1)
@@ -132,7 +136,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 e.target.removeEventListener('submit', submitname)
                 nameinput.removeEventListener('focusout', submitname)
                 let newname = nameinput.value
-                socket.emit('addname', localStorage.getItem('userid'), newname)
+                localStorage.setItem('username', newname)
+                socket.emit('adduser', localStorage.getItem('userid'), newname)
                 e.target.innerHTML = "(" + newname + ")"
                 event.preventDefault()
 

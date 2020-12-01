@@ -19,7 +19,6 @@ green light for activity
 
 
 
-
 NOTES:
 
 favicons generated here:
@@ -31,7 +30,7 @@ flask run
 
 October 2020 Charges:
  + $3       static IP
- + $3.96    Micro INstance with burstable CPU Americas
+ + $3.96    Micro Instance with burstable CPU Americas
  = $6.96    Total
 
 could save money with dynamic IP and dynamic DNS
@@ -39,7 +38,6 @@ could save money with dynamic IP and dynamic DNS
 after enabling SSL, had to add following to nginx.conf (inside "location /socket.io"):
     proxy_set_header Origin "";
     
-
 
 
 APP STRUCTURE:
@@ -69,3 +67,34 @@ ACTIONS:
         - server sends updated word lists + pool + "x played WORD by stealing y" message to all clients in room 
     - if word is not valid:
         - server sends reason to originator
+ - change your name:
+    - update name display locally
+    - send 'addname' message to server
+        - server associates id with name
+        - server sends update to all clients in room (or maybe to all rooms with this user?)
+
+
+SOCKET ENDPOINTS:
+
+from client
+
+ - update: (roomname)
+    - requests a full update of room state for this client
+
+ - submit: (roomname, userid, word)
+    - submits a word to claim
+
+ - adduser: ([userid],[username])
+    - if userid is not defined, generate a new one. if it is defined, save it on the server
+
+
+from server
+
+ - update: (poolstring, blockwords, scores, names, room_message)
+    - sends updated room state to all clients in room
+
+ - userid: (userid)
+    - communicates a newly assigned userid to the client
+
+ - wordmess: (message)
+    - sends a message to display on page for particular client
