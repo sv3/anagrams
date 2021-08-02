@@ -9,6 +9,8 @@ import string, random
 import re
 import json
 
+from apscheduler.schedulers.background import BackgroundScheduler
+
 with open('../secret.txt') as f:
     w_secret = f.read()[:-1]
 
@@ -178,6 +180,14 @@ def submit(roomname, userid, word):
     rooms[roomname] = {'pool':pool, 'pool_flipped':pool_flipped, 'played_words':played_words}
     update(roomname, pool_flipped, played_words)
 
+def auto_add_letter():
+    for room in rooms:
+        print(room)
+        submit(room, '', '')
+
+sched = BackgroundScheduler()
+sched.add_job(func=auto_add_letter, trigger='interval', seconds=5)
+sched.start()
 
 # endpoint that pulls from github and restarts the server
 @app.route('/update_server', methods=['POST'])
