@@ -4,7 +4,7 @@
 from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit, join_room
 from update_server import gitpullserver
-from anagrams import pickletter, getword, calc_score, resetgame
+from classagrams import Anagrams
 import string, random
 import re
 import json
@@ -18,30 +18,17 @@ app = Flask(__name__)
 app.config['SECRET KEY'] = w_secret
 socketio = SocketIO(app)
 
-dictionaries = {}
-
-with open('dictionaries/blex.txt', encoding='utf-8') as dictfile:
-    dictionaries['cz'] = [word[:-1].upper() for word in dictfile.readlines()[2:]]
-
-with open('dictionaries/twl06.txt', encoding='utf-8') as dictfile:
-    dictionaries['en'] = [word[:-1].upper() for word in dictfile.readlines()[2:]]
 
 alphabet = string.ascii_uppercase
 block_alphabet = '🄰🄱🄲🄳🄴🄵🄶🄷🄸🄹🄺🄻🄼🄽🄾🄿🅀🅁🅂🅃🅄🅅🅆🅇🅈🅉'
 
 rooms = {}
-rooms_meta = {}
-meta_default = {
-        'lang':'en',
-        'min_word_length':3,
-        'score_handicap':2 # subtract this from the score for each word
-        }
 
-rooms_meta['test'] = meta_default.copy()
-rooms['test'] = resetgame(rooms_meta['test'])
-rooms['test']['pool_flipped'] = 'TEST'
-rooms_meta['cz'] = meta_default.copy()
-rooms_meta['cz']['lang'] = 'cz'
+rooms['lobby'] = Anagrams('en', min_word_len=3, score_handicap=2)
+rooms['test'] = Anagrams('en', min_word_len=3, score_handicap=2)
+rooms['test'].pool_flipped = 'TEST'
+rooms['cz'] = Anagrams('cz', min_word_len=3, score_handicap=2)
+
 
 users = {}
 
@@ -63,7 +50,7 @@ def info():
 
 @app.route('/room/<roomname>')
 def room(roomname):
-    if roomname in rooms and roomname in rooms_meta:
+    if roomname in rooms:
         return render_template('index.html', room=roomname, poolletters='')
     else:
         return redirect('/room/' + roomname + '/reset')
@@ -72,13 +59,8 @@ def room(roomname):
 @app.route('/room/<roomname>/reset')
 def reset(roomname):
     global rooms
-    global rooms_meta
 
-    # for new rooms, set default parameters
-    rooms_meta.setdefault(roomname, meta_default)
-
-    meta = rooms_meta[roomname]
-    rooms[roomname] = resetgame(meta)
+    rooms[roomname] = Anagrams('en', 3, 2)
     print('reset room', roomname, rooms[roomname])
     return redirect('/room/' + roomname)
 
@@ -110,10 +92,12 @@ def adduser(userid, username):
         users[userid] = username
 
 
-def update(roomname, pool_flipped, played_words):
-    score_handicap = rooms_meta[roomname]['score_handicap']
+def update(roomname):
+    room = rooms[roomname]
+    score_handicap = room.score_handicap
     blockwords = {}
-    if rooms_meta[roomname]['lang'] == 'cz':
+    pool_flipped, played_words = room.pool_flipped, room.played_words
+    if room.lang == 'cz':
         for user in played_words.keys():
             blockwords[user] = ' '.join([word for word in played_words[user]])
         poolstring = '​'.join(pool_flipped)
@@ -122,7 +106,7 @@ def update(roomname, pool_flipped, played_words):
             blockwords[user] = ' '.join([toblocks(word) for word in played_words[user]])
         poolstring = '​'.join(toblocks(pool_flipped))
 
-    scores = {userid:calc_score(words, score_handicap) for userid, words in played_words.items()}
+    scores = {userid:room.calc_score(words) for userid, words in played_words.items()}
     names = {userid:users[userid] for userid in played_words}
     socketio.emit('update', [poolstring, blockwords, scores, names, ''], room=roomname)
 
@@ -132,19 +116,17 @@ def updateclient(roomname):
     print('updating client for room:',roomname)
     join_room(roomname)
     room = rooms[roomname]
-    update(roomname, room['pool_flipped'], room['played_words'])
+    update(roomname)
 
 
 @socketio.on('submit')
 def submit(roomname, userid, word):
     global rooms
-    room_meta = rooms_meta[roomname]
-    lang = room_meta['lang']
-    min_word_length = room_meta['min_word_length']
-    dictionary = dictionaries[lang]
+    min_word_length = rooms[roomname].min_word_len
+    dictionary = rooms[roomname].dictionary
     room = rooms[roomname]
 
-    pool, pool_flipped, played_words = room['pool'], room['pool_flipped'], room['played_words']
+    pool, pool_flipped, played_words = room.pool, room.pool_flipped, room.played_words
 
     message = ''
     word = word.upper()
@@ -154,7 +136,7 @@ def submit(roomname, userid, word):
 
     # Is the word length 0? Is it shorter than the minimum length? Is it a real word?
     if len(word) == 0:
-        letter, pool, pool_flipped = pickletter(pool, pool_flipped, language=lang)
+        letter = room.pickletter()
         message = 'A new letter has been flipped'
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
@@ -162,32 +144,27 @@ def submit(roomname, userid, word):
         emit('wordmess', f'{word} is not even a word ⚆_⚆')
     else:
         # recursively try to make the word from a combination of existing words and letters
-        result, pool_flipped_new, played_words_new = getword(word, pool_flipped, played_words, 0)
+        result, room.pool_flipped, room.played_words = room.getword(word, played_words, 0)
         if not result:
             emit('wordmess', f'You can\'t make {word} out of the available letters')
+        elif result:
+            message = f'{userid} claimed {word}'
+            print(message)
+            if userid in played_words:
+                room.played_words[userid].append(word)
+            else:
+                room.played_words[userid] = [word]
 
-    if result:
-        message = f'{userid} claimed {word}'
-        print(message)
-        played_words = played_words_new.copy()
-        if userid in played_words:
-            played_words[userid].append(word)
-        else:
-            played_words[userid] = [word]
-        pool_flipped = pool_flipped_new
-
-    
-    rooms[roomname] = {'pool':pool, 'pool_flipped':pool_flipped, 'played_words':played_words}
-    update(roomname, pool_flipped, played_words)
+    update(roomname)
 
 def auto_add_letter():
     for room in rooms:
         print(room)
         submit(room, '', '')
 
-sched = BackgroundScheduler()
-sched.add_job(func=auto_add_letter, trigger='interval', seconds=5)
-sched.start()
+# sched = BackgroundScheduler()
+# sched.add_job(func=auto_add_letter, trigger='interval', seconds=5)
+# sched.start()
 
 # endpoint that pulls from github and restarts the server
 @app.route('/update_server', methods=['POST'])
