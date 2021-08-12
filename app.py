@@ -4,7 +4,7 @@
 from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit, join_room
 from update_server import gitpullserver
-from classagrams import Anagrams
+from anagrams import Anagrams, dictionaries
 import string, random
 import re
 import json
@@ -70,26 +70,35 @@ def debug():
     # if app.env != 'development':
     #     return redirect('/')
     # elif app.env == 'development':
-    debugvars = ('rooms', 'rooms_meta', 'users')
-    vardict = { key:globals()[key] for key in debugvars }
+    roomdict = { roomname:room.get_state() for roomname, room in rooms.items() }
+    vardict = { 'users':users, 'rooms':roomdict }
     return(json.dumps(vardict))
 
 
 @socketio.on('adduser')
 def adduser(userid, username):
     print(userid, username)
+
+    # didn't receive an ID - generate one
     if not userid:
         userid = ''.join( random.choice(string.ascii_lowercase) for i in range(7) )
-        users[userid] = userid
+        while True:
+            newname = random.choice(dictionaries['en'])
+            if 4 < len(newname) < 15:
+                break
+        users[userid] = newname
         print('sending back newly generated id: ' + userid)
-        emit('userid', userid)
+        emit('userid', (userid, newname))
+        return
 
-    # just an id received: save it in users
+    # didn't receive a name - add player to the game
     if not username:
         if userid not in users:
             users[userid] = userid
+        emit('userid', (userid, users[userid]))
     else:
         users[userid] = username
+
 
 
 def update(roomname):

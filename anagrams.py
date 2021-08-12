@@ -44,6 +44,9 @@ class Anagrams:
         self.pool_flipped = ''
         self.played_words = {}
 
+    def get_state(self):
+        state_attrs = ['lang', 'min_word_len', 'score_handicap', 'pool', 'pool_flipped', 'played_words']
+        return {key:getattr(self, key) for key in state_attrs}
 
     def calc_score(self, words):
         '''for each word, subtract the handicap to get the score'''

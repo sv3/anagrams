@@ -77,11 +77,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     })
 
 
-    socket.on('userid', function(id) {
+    socket.on('userid', function(id, name) {
         // got a message containing a new id for this session
-        console.log('got new id: ' + id)
+        console.log('got new id: ' + id + ' ' + name)
         localStorage.setItem('userid', id)
-        localStorage.setItem('username', id)
+        localStorage.setItem('username', name)
     })
 
     socket.on('update', update)
