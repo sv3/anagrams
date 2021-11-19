@@ -40,13 +40,15 @@ class Anagrams:
             # double the number of each letter
             starting_pool = [x*2 for x in starting_pool]
 
-        self.pool = starting_pool
+        self.pool = ''.join([self.alphabet[i]*num for i, num in enumerate(starting_pool)])
         self.pool_flipped = ''
         self.played_words = {}
+
 
     def get_state(self):
         state_attrs = ['lang', 'min_word_len', 'score_handicap', 'pool', 'pool_flipped', 'played_words']
         return {key:getattr(self, key) for key in state_attrs}
+
 
     def calc_score(self, words):
         '''for each word, subtract the handicap to get the score'''
@@ -54,12 +56,10 @@ class Anagrams:
         return sum( max(0, len(word)-handicap) for word in words )
 
 
-    def pickletter(self):
-        # make a string containing the approprieate number of each letter
-        poolstring = ''.join([self.alphabet[i]*num for i, num in enumerate(self.pool)])
-        letter = random.choice(poolstring)
-        letterindex = self.alphabet.find(letter)
-        self.pool[letterindex] -= 1
+    def flipletter(self):
+        '''randomly pick a letter from the pool and move it to pool_flipped'''
+        letter = random.choice(self.pool)
+        self.pool = self.pool.replace(letter, '', 1)
         self.pool_flipped = self.pool_flipped + letter
         return letter
 
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
         # is it a valid word?
         if len(word) == 0:
-            letter = game.pickletter()
+            letter = game.flipletter()
             print('flipped over', letter)
         elif len(word) < min_word_length:
             print('That word is too short. Minimum length is', min_word_length)

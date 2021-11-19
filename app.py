@@ -145,7 +145,7 @@ def submit(roomname, userid, word):
 
     # Is the word length 0? Is it shorter than the minimum length? Is it a real word?
     if len(word) == 0:
-        letter = room.pickletter()
+        letter = room.flipletter()
         message = 'A new letter has been flipped'
     elif len(word) < min_word_length:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
