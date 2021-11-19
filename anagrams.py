@@ -66,17 +66,18 @@ class Anagrams:
 
     def check_fully_contained(self, donor, target):
         '''Check if donor is fully contained in target. Return any remaining letters from target'''
-        for l in donor:
-            index = target.find(l)
+        remaining = target
+        for letter in donor:
+            index = remaining.find(letter)
             if index < 0:
                 # letter not in target word - abort
-                return False
+                return target
             else:
                 # remove the letter
-                target = target[:index] + target[index+1:]
+                remaining = remaining[:index] + remaining[index+1:]
 
         # return remaining letters from target word
-        return target
+        return remaining
 
 
     def getword(self, target, played_words, depth):
@@ -89,19 +90,21 @@ class Anagrams:
             for donor in player_words:
                 # Check if any of the played words are fully contained in the target word
                 remaining_letters = self.check_fully_contained(donor, target)
-                if not remaining_letters:
+                if donor in target:
+                    logging.debug(f'can\'t steal {donor}, you need to rearrange the letters in a word to steal it')
                     continue
-                elif donor in target:
-                    logging.debug('You need to rearrange the letters in a word to steal it')
+                elif remaining_letters == target:
+                    # nothing to steal. try the next word
                     continue
                 elif remaining_letters == '':
-                    # found a word to steal
+                    # found a word to steal, no letters remaining in target
                     if depth == 0:
-                        # can't steal a just a single word - must combine with other letters
+                        logging.debug('can\'t steal just a single word - must combine with other words or letters')
                         continue
-                    played_words_new[player].remove(donor)
-                    logging.debug(indent + 'stealing ' + donor)
-                    return True, self.pool, played_words_new
+                    else:
+                        played_words_new[player].remove(donor)
+                        logging.debug(indent + 'stealing ' + donor)
+                        return True, self.pool_flipped, played_words_new
                 else:
                     # found a word to steal for some of the letters needed - we need to go deeper
                     played_words_new[player].remove(donor)
@@ -110,23 +113,17 @@ class Anagrams:
                     if result:
                         return True, newpool, played_words_new
 
-        logging.debug(indent + 'failed to find a word to steal for the letters:' + target)
-
+        logging.debug(indent + 'failed to find a word to steal for the letters: ' + target)
         poollist = list(self.pool_flipped)
-        target_remaining = ''
-
         for letter in target:
             if letter in poollist:
                 poollist.remove(letter)
             else:
-                target_remaining = target_remaining + letter
+                logging.debug(indent + f'failed to find this letter from {target} in the pool: {letter} - backtracking')
+                return False, self.pool_flipped, played_words
 
-        if target_remaining == '':
-            logging.debug(indent + 'taking these letters from the pool:' + target)
-            return True, ''.join(poollist), played_words
-        else:
-            logging.debug(indent + f'failed to find these letters from {target} in the pool: {target_remaining} - backtracking')
-            return False, self.pool_flipped, played_words
+        logging.debug(indent + 'taking these letters from the pool: ' + target)
+        return True, ''.join(poollist), played_words
 
 
 if __name__ == '__main__':
