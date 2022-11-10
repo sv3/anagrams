@@ -75,6 +75,18 @@ def debug():
     return(json.dumps(vardict))
 
 
+@app.route('/room/<roomname>/plays')
+def findplays(roomname):
+    room = rooms[roomname]
+    possible_plays = room.findplays(room.played_words, room.pool_flipped)
+    html = ''
+    for word in possible_plays:
+        html += '<div class="playlist">' + word + '</div>'
+    head = '<head><link rel="stylesheet" type="text/css" href="/static/normalize.css" /> <link rel="stylesheet" type="text/css" href="/static/css.css" /></head>'
+    html = '<html>'+head+'<body><div>' + html + '</div></html></body>'
+    return html
+
+
 @socketio.on('adduser')
 def adduser(userid, username):
     print(userid, username)
@@ -98,7 +110,6 @@ def adduser(userid, username):
         emit('userid', (userid, users[userid]))
     else:
         users[userid] = username
-
 
 
 def update(roomname):

@@ -145,3 +145,12 @@ input#nameinput {
   overflow: hidden;
   white-space: pre;
 }
+
+.playlist {
+  display: inline-block;
+  padding: 0.1em 0.2em;
+  margin: 0.1em;
+  background: white;
+  font-size: 1.1rem;
+}
+

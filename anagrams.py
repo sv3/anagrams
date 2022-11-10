@@ -125,10 +125,41 @@ class Anagrams:
         logging.debug(indent + 'taking these letters from the pool: ' + target)
         return True, ''.join(poollist), played_words
 
+        
+    def findplays(self, played_words, letters):
+        flat_word_list = []
+        for player_words in played_words.values():
+            for word in player_words:
+                flat_word_list.append(word)
+
+        available_letters = ''.join(flat_word_list) + letters
+        available_set = set(available_letters) 
+
+        words_from_avail_letters = []
+        playable_words = []
+        for word in self.dictionary:
+            if self.check_fully_contained(word, available_letters) == available_letters:
+                pass
+            else:
+                words_from_avail_letters.append(word)
+
+        for word in words_from_avail_letters:
+            result = False
+            if len(word) < self.min_word_len:
+                continue
+            else:
+                result, _, _ = self.getword(word, self.played_words, 0)
+                if result:
+                    # print('available word: ' + word)
+                    playable_words.append(word)
+
+        return playable_words
+
+        
 
 if __name__ == '__main__':
     # play in the terminal with an imaginary and passive opponent
-    logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stderr, level=logging.ERROR)
 
 
     lang = 'en'
