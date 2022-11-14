@@ -29,7 +29,6 @@ rooms['test'] = Anagrams('en', min_word_len=3, score_handicap=2)
 rooms['test'].pool_flipped = 'TEST'
 rooms['cz'] = Anagrams('cz', min_word_len=3, score_handicap=2)
 
-
 users = {}
 
 
@@ -37,6 +36,8 @@ def toblocks(letterstring):
     letterlist = [block_alphabet[alphabet.find(l)] for l in letterstring]
     return ''.join(letterlist)
 
+
+### HTTP routes ----------------------------------------------------------------
 
 @app.route('/')
 def tolobby():
@@ -78,7 +79,7 @@ def debug():
 @app.route('/room/<roomname>/plays')
 def findplays(roomname):
     room = rooms[roomname]
-    possible_plays = room.findplays(room.played_words, room.pool_flipped)
+    possible_plays = room.findplays()
     html = ''
     for word in possible_plays:
         html += '<div class="playlist">' + word + '</div>'
@@ -86,6 +87,8 @@ def findplays(roomname):
     html = '<html>'+head+'<body><div>' + html + '</div></html></body>'
     return html
 
+
+### websocket routes -----------------------------------------------------------
 
 @socketio.on('adduser')
 def adduser(userid, username):
@@ -114,6 +117,8 @@ def adduser(userid, username):
 
 def update(roomname):
     room = rooms[roomname]
+    print(room.num_possible_plays)
+    room.add_until_playable()
     score_handicap = room.score_handicap
     blockwords = {}
     pool_flipped, played_words = room.pool_flipped, room.played_words
@@ -128,14 +133,15 @@ def update(roomname):
 
     scores = {userid:room.calc_score(words) for userid, words in played_words.items()}
     names = {userid:users[userid] for userid in played_words}
-    socketio.emit('update', [poolstring, blockwords, scores, names, ''], room=roomname)
+    num_plays = room.num_possible_plays
+    socketio.emit('update', [poolstring, blockwords, scores, names, num_plays], room=roomname)
 
 
 @socketio.on('update')
 def updateclient(roomname):
     print('updating client for room:',roomname)
+    # flask-socketio function to join a room
     join_room(roomname)
-    room = rooms[roomname]
     update(roomname)
 
 
@@ -175,6 +181,8 @@ def submit(roomname, userid, word):
             else:
                 room.played_words[userid] = [word]
 
+    room.possible_plays = room.findplays()
+    room.num_possible_plays = len(room.possible_plays)
     update(roomname)
 
 def auto_add_letter():

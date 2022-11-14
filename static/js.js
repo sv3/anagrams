@@ -42,16 +42,12 @@ function update(wordresponse) {
     console.log(wordresponse)
 
     let pool = document.getElementById('pool')
-    let message = document.getElementById('globalmessage')
+    let num_plays_div = document.getElementById('num_plays')
 
-    pool.textContent = wordresponse[0]  // render letter pool
-
+    pool.childNodes[0].textContent = wordresponse[0] // render letter pool
+    num_plays_div.innerHTML = 'possible plays: ' + wordresponse[4]
+    
     renderwords(wordresponse[1], wordresponse[2], wordresponse[3]) // words, scores, names
-
-    // display room message
-    if (wordresponse[4] !== ''){
-        message.textContent = wordresponse[3]
-    }
 }
 
 

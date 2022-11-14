@@ -157,3 +157,7 @@ input#nameinput {
   font-size: 1.1rem;
 }
 
+#num_plays {
+  margin-left: auto;
+  font-size: 0.6em;
+}

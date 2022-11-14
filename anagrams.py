@@ -43,6 +43,26 @@ class Anagrams:
         self.pool = ''.join([self.alphabet[i]*num for i, num in enumerate(starting_pool)])
         self.pool_flipped = ''
         self.played_words = {}
+        self.possible_plays = []
+        self.num_possible_plays = 0
+        for i in range(self.min_word_len):
+            self.flipletter()
+        self.add_until_playable()
+
+
+    def add_until_playable(self):
+        print('adding until playable')
+        if self.num_possible_plays > 0:
+            print('playable')
+            return
+        else:
+            while self.num_possible_plays == 0:
+                print('not playable! adding letter')
+                self.flipletter()
+                
+                self.possible_plays = self.findplays()
+                self.num_possible_plays = len(self.possible_plays)
+        return
 
 
     def get_state(self):
@@ -126,7 +146,9 @@ class Anagrams:
         return True, ''.join(poollist), played_words
 
         
-    def findplays(self, played_words, letters):
+    def findplays(self):
+        played_words = self.played_words
+        letters = self.pool_flipped
         flat_word_list = []
         for player_words in played_words.values():
             for word in player_words:
@@ -136,7 +158,7 @@ class Anagrams:
         available_set = set(available_letters) 
 
         words_from_avail_letters = []
-        playable_words = []
+        possible_plays = []
         for word in self.dictionary:
             if self.check_fully_contained(word, available_letters) == available_letters:
                 pass
@@ -151,9 +173,9 @@ class Anagrams:
                 result, _, _ = self.getword(word, self.played_words, 0)
                 if result:
                     # print('available word: ' + word)
-                    playable_words.append(word)
+                    possible_plays.append(word)
 
-        return playable_words
+        return possible_plays
 
         
 
