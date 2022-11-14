@@ -105,6 +105,9 @@ p {
 
 #startbutton {
     font-size: 2em;
+    background: #000000;
+    color: rgb(255 222 52);
+    cursor: pointer
 }
 
 #newwordmessage {
