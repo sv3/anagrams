@@ -51,15 +51,11 @@ class Anagrams:
 
 
     def add_until_playable(self):
-        print('adding until playable')
         if self.num_possible_plays > 0:
-            print('playable')
             return
         else:
             while self.num_possible_plays == 0:
-                print('not playable! adding letter')
                 self.flipletter()
-                
                 self.possible_plays = self.findplays()
                 self.num_possible_plays = len(self.possible_plays)
         return
@@ -172,7 +168,6 @@ class Anagrams:
             else:
                 result, _, _ = self.getword(word, self.played_words, 0)
                 if result:
-                    # print('available word: ' + word)
                     possible_plays.append(word)
 
         return possible_plays

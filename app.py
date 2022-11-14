@@ -117,8 +117,6 @@ def adduser(userid, username):
 
 def update(roomname):
     room = rooms[roomname]
-    print(room.num_possible_plays)
-    room.add_until_playable()
     score_handicap = room.score_handicap
     blockwords = {}
     pool_flipped, played_words = room.pool_flipped, room.played_words
@@ -133,7 +131,13 @@ def update(roomname):
 
     scores = {userid:room.calc_score(words) for userid, words in played_words.items()}
     names = {userid:users[userid] for userid in played_words}
+    socketio.emit('update', [poolstring, blockwords, scores, names, '?'], room=roomname)
+
+    room.possible_plays = room.findplays()
+    room.num_possible_plays = len(room.possible_plays)
+    room.add_until_playable()
     num_plays = room.num_possible_plays
+    poolstring = '​'.join(toblocks(room.pool_flipped))
     socketio.emit('update', [poolstring, blockwords, scores, names, num_plays], room=roomname)
 
 
@@ -181,8 +185,6 @@ def submit(roomname, userid, word):
             else:
                 room.played_words[userid] = [word]
 
-    room.possible_plays = room.findplays()
-    room.num_possible_plays = len(room.possible_plays)
     update(roomname)
 
 def auto_add_letter():
