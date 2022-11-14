@@ -152,7 +152,6 @@ def updateclient(roomname):
 @socketio.on('submit')
 def submit(roomname, userid, word):
     global rooms
-    min_word_length = rooms[roomname].min_word_len
     dictionary = rooms[roomname].dictionary
     room = rooms[roomname]
 
@@ -160,6 +159,7 @@ def submit(roomname, userid, word):
 
     message = ''
     word = word.upper()
+    # ignore whitespace
     word = re.sub(r'\s+', '', word)
     print(userid, 'submitted', word)
     result = False
@@ -168,7 +168,7 @@ def submit(roomname, userid, word):
     if len(word) == 0:
         letter = room.flipletter()
         message = 'A new letter has been flipped'
-    elif len(word) < min_word_length:
+    elif len(word) < rooms[roomname].min_word_len:
         emit('wordmess', f'That word is too short. Minimum length is {min_word_length}')
     elif word not in dictionary:
         emit('wordmess', f'{word} is not even a word ⚆_⚆')

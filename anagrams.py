@@ -51,13 +51,10 @@ class Anagrams:
 
 
     def add_until_playable(self):
-        if self.num_possible_plays > 0:
-            return
-        else:
-            while self.num_possible_plays == 0:
-                self.flipletter()
-                self.possible_plays = self.findplays()
-                self.num_possible_plays = len(self.possible_plays)
+        while self.num_possible_plays == 0:
+            self.flipletter()
+            self.possible_plays = self.findplays()
+            self.num_possible_plays = len(self.possible_plays)
         return
 
 
