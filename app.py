@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import eventlet
+eventlet.monkey_patch()
 
 from flask import Flask, render_template, redirect
 from flask_socketio import SocketIO, send, emit, join_room
@@ -16,7 +18,7 @@ with open('../secret.txt') as f:
 
 app = Flask(__name__)
 app.config['SECRET KEY'] = w_secret
-socketio = SocketIO(app)
+socketio = SocketIO(app, logger=True)
 
 
 alphabet = string.ascii_uppercase
@@ -31,6 +33,7 @@ rooms['cz'] = Anagrams('cz', min_word_len=3, score_handicap=2)
 
 users = {}
 
+tpool = eventlet.GreenPool()
 
 def toblocks(letterstring):
     letterlist = [block_alphabet[alphabet.find(l)] for l in letterstring]
@@ -79,7 +82,7 @@ def debug():
 @app.route('/room/<roomname>/plays')
 def findplays(roomname):
     room = rooms[roomname]
-    possible_plays = room.findplays()
+    possible_plays = findplays2(roomname)
     html = ''
     for word in possible_plays:
         html += '<div class="playlist">' + word + '</div>'
@@ -131,15 +134,62 @@ def update(roomname):
 
     scores = {userid:room.calc_score(words) for userid, words in played_words.items()}
     names = {userid:users[userid] for userid in played_words}
-    socketio.emit('update', [poolstring, blockwords, scores, names, '?'], room=roomname)
+    # tpool.spawn_n(update_possible_plays, roomname)
+    socketio.start_background_task(update_possible_plays, roomname)
+    emit('update', [poolstring, blockwords, scores, names, ''], room=roomname)
 
-    room.possible_plays = room.findplays()
+
+def findplays2(roomname):
+    room = rooms[roomname]
+    played_words = room.played_words
+    letters = room.pool_flipped
+    flat_word_list = []
+    for player_words in played_words.values():
+        for word in player_words:
+            flat_word_list.append(word)
+
+    available_letters = ''.join(flat_word_list) + letters
+    available_set = set(available_letters) 
+
+    words_from_avail_letters = []
+    possible_plays = []
+    for word in room.dictionary:
+        if room.check_fully_contained(word, available_letters) == available_letters:
+            pass
+        else:
+            words_from_avail_letters.append(word)
+            socketio.sleep(0)
+
+    for word in words_from_avail_letters:
+        result = False
+        if len(word) < room.min_word_len:
+            continue
+        else:
+            result, _, _ = room.getword(word, room.played_words, 0)
+            if result:
+                socketio.sleep(0)
+                possible_plays.append(word)
+
+    return possible_plays
+
+
+def update_possible_plays(roomname):
+    room = rooms[roomname]
+    room.possible_plays = findplays2(roomname)
     room.num_possible_plays = len(room.possible_plays)
-    room.add_until_playable()
+    add_until_playable2(roomname)
     num_plays = room.num_possible_plays
     poolstring = '​'.join(toblocks(room.pool_flipped))
-    socketio.emit('update', [poolstring, blockwords, scores, names, num_plays], room=roomname)
+    socketio.emit('update', [poolstring, None, None, None, num_plays], room=roomname)
 
+
+def add_until_playable2(roomname):
+    room = rooms[roomname]
+    while room.num_possible_plays == 0:
+        room.flipletter()
+        room.possible_plays = self.findplays()
+        room.num_possible_plays = len(self.possible_plays)
+    return
 
 @socketio.on('update')
 def updateclient(roomname):
@@ -186,6 +236,7 @@ def submit(roomname, userid, word):
                 room.played_words[userid] = [word]
 
     update(roomname)
+
 
 def auto_add_letter():
     for room in rooms:

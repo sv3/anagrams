@@ -44,10 +44,15 @@ function update(wordresponse) {
     let pool = document.getElementById('pool')
     let num_plays_div = document.getElementById('num_plays')
 
-    pool.childNodes[0].textContent = wordresponse[0] // render letter pool
-    num_plays_div.innerHTML = 'possible plays: ' + wordresponse[4]
+    if (wordresponse[0] !== undefined) {
+        pool.childNodes[0].textContent = wordresponse[0] // render letter pool
+    }
     
-    renderwords(wordresponse[1], wordresponse[2], wordresponse[3]) // words, scores, names
+    if (!(wordresponse.slice(1,4).includes(null))) {
+        renderwords(wordresponse[1], wordresponse[2], wordresponse[3]) // words, scores, names
+    }
+    
+    num_plays_div.innerHTML = 'possible plays: ' + wordresponse[4]
 }
 
 
